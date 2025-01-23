@@ -1,5 +1,6 @@
-use iced::widget::{self, column, Column};
-use iced::Task;
+use iced::widget::text::Shaping;
+use iced::widget::{self, column, row};
+use iced::{Element, Task};
 use so2_tool::api::item_definition;
 
 pub fn main() -> iced::Result {
@@ -46,11 +47,12 @@ impl ItemsLabel {
         }
     }
 
-    fn view(&self) -> Column<Message> {
-        column![
-            widget::text(&self.text).size(10),
-            widget::button("Load").on_press(Message::LoadButtonPushed)
-        ]
+    fn view(&self) -> Element<Message> {
+        column![row![
+            widget::button("Load").on_press(Message::LoadButtonPushed),
+            widget::scrollable(widget::text(&self.text).size(10).shaping(Shaping::Advanced)),
+        ],]
         .padding(20)
+        .into()
     }
 }
