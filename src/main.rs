@@ -1,40 +1,56 @@
-use iced::widget::{button, column, text, Column};
-use iced::Center;
+use iced::widget::{self, column, Column};
+use iced::Task;
+use so2_tool::api::item_definition;
 
 pub fn main() -> iced::Result {
-    iced::run("A cool counter", Counter::update, Counter::view)
+    iced::run(
+        "SOLD OUT 2 tools by fal_rnd",
+        ItemsLabel::update,
+        ItemsLabel::view,
+    )
 }
 
-#[derive(Default)]
-struct Counter {
-    value: i64,
+struct ItemsLabel {
+    text: String,
 }
 
-#[derive(Debug, Clone, Copy)]
+impl Default for ItemsLabel {
+    fn default() -> Self {
+        Self {
+            text: "Not Loaded".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 enum Message {
-    Increment,
-    Decrement,
+    LoadButtonPushed,
+    Loaded(String),
 }
 
-impl Counter {
-    fn update(&mut self, message: Message) {
+impl ItemsLabel {
+    fn update(&mut self, message: Message) -> Task<Message> {
         match message {
-            Message::Increment => {
-                self.value += 1;
-            }
-            Message::Decrement => {
-                self.value -= 1;
+            Message::LoadButtonPushed => Task::perform(
+                async {
+                    item_definition::get()
+                        .await
+                        .map_or_else(|e| format!("error: {e}"), |v| v.value)
+                },
+                Message::Loaded,
+            ),
+            Message::Loaded(items) => {
+                self.text = items;
+                Task::none()
             }
         }
     }
 
     fn view(&self) -> Column<Message> {
         column![
-            button("Increment").on_press(Message::Increment),
-            text(self.value).size(50),
-            button("Decrement").on_press(Message::Decrement)
+            widget::text(&self.text).size(10),
+            widget::button("Load").on_press(Message::LoadButtonPushed)
         ]
         .padding(20)
-        .align_x(Center)
     }
 }
