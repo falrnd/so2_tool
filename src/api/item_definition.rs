@@ -30,10 +30,9 @@ pub async fn get() -> Result<ItemDefinition, Box<dyn std::error::Error>> {
         }
     }
 
-    let api_call = api_call();
-    let mut file = File::create(&file_path)?;
-    let api_call = api_call.await?;
-    file.write_all(api_call.as_bytes())?;
+    let (api_call, file) = iced::futures::join!(api_call(), async { File::create(&file_path) });
+    let api_call = api_call?;
+    file?.write_all(api_call.as_bytes())?;
     Ok(ItemDefinition { value: api_call })
 }
 
