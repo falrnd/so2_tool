@@ -1,6 +1,7 @@
 use iced::widget::text::Shaping;
 use iced::widget::{self, column, row};
 use iced::{Element, Task};
+use itertools::Itertools;
 use so2_tool::api::item_definition;
 
 pub fn main() -> iced::Result {
@@ -34,9 +35,10 @@ impl ItemsLabel {
         match message {
             Message::LoadButtonPushed => Task::perform(
                 async {
-                    item_definition::get()
-                        .await
-                        .map_or_else(|e| format!("error: {e}"), |v| v.value)
+                    item_definition::get().await.map_or_else(
+                        |e| format!("error: {e}"),
+                        |v| v.value.values().map(|v| format!("{:?}", v)).join("\n"),
+                    )
                 },
                 Message::Loaded,
             ),
@@ -51,7 +53,8 @@ impl ItemsLabel {
         column![row![
             widget::button("Load").on_press(Message::LoadButtonPushed),
             widget::scrollable(widget::text(&self.text).size(10).shaping(Shaping::Advanced)),
-        ],]
+        ]
+        .spacing(5)]
         .padding(20)
         .into()
     }
