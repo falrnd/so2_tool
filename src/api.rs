@@ -1,3 +1,5 @@
+//! https://mutoys.com/so2/info/api
+
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
