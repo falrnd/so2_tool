@@ -27,6 +27,12 @@ pub struct Item {
     pub sort: u32,
 }
 
+impl std::fmt::Display for Item {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} ({}/{}) ", self.name, self.category, self.class)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ItemDefinition {
     #[serde(flatten)]

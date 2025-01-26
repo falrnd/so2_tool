@@ -44,7 +44,7 @@ impl ItemsLabel {
                     async {
                         item_definition::get().await.map_or_else(
                             |e| format!("error: {e}"),
-                            |v| v.values().map(|v| format!("{:?}", v)).join("\n"),
+                            |v| v.values().map(ToString::to_string).join("\n"),
                         )
                     },
                     Message::Loaded,
