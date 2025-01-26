@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::{Read, Write};
 
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 use super::{api_call_default_interval, get_file_path};
@@ -29,7 +30,13 @@ pub struct Item {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ItemDefinition {
     #[serde(flatten)]
-    pub value: HashMap<String, Item>,
+    value: HashMap<String, Item>,
+}
+
+impl ItemDefinition {
+    pub fn values(&self) -> impl Iterator<Item = &Item> {
+        self.value.values().sorted_by_key(|item| item.sort)
+    }
 }
 
 pub async fn get() -> Result<ItemDefinition, Box<dyn std::error::Error>> {
