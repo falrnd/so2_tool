@@ -3,7 +3,7 @@ use iced::widget::text::Shaping;
 use iced::widget::{button, column, container, pick_list, row, scrollable, text};
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
-use so2_tool::api::item_definition;
+use so2_tool::api::item_definition::ItemDefinition;
 
 pub fn main() -> iced::Result {
     iced::application(
@@ -42,7 +42,7 @@ impl ItemsLabel {
             Message::LoadButtonPushed => {
                 return Task::perform(
                     async {
-                        item_definition::get().await.map_or_else(
+                        ItemDefinition::get().await.map_or_else(
                             |e| format!("error: {e}"),
                             |v| v.values().map(ToString::to_string).join("\n"),
                         )

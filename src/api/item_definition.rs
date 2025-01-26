@@ -1,20 +1,13 @@
 use std::collections::HashMap;
-use std::fs::File;
-use std::io::{Read, Write};
 
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-use super::{api_call_default_interval, get_file_path};
+use super::APICall;
 
 pub const ENDPOINT: &str = "https://so2-api.mutoys.com/master/item.json";
 
 const ITEMS_FILE_NAME: &str = r"item_definition.json";
-
-async fn api_call() -> Result<ItemDefinition, reqwest::Error> {
-    eprintln!("API call");
-    reqwest::get(ENDPOINT).await?.json().await
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Item {
@@ -43,31 +36,10 @@ impl ItemDefinition {
     pub fn values(&self) -> impl Iterator<Item = &Item> {
         self.value.values().sorted_by_key(|item| item.sort)
     }
-}
 
-pub async fn get() -> Result<ItemDefinition, Box<dyn std::error::Error>> {
-    let file_path = get_file_path(ITEMS_FILE_NAME);
-
-    if file_path.exists() {
-        let mut file = File::open(&file_path)?;
-        let file_last_modified = file.metadata()?.modified()?;
-        if file_last_modified.elapsed()? < api_call_default_interval() {
-            match deserialize(&mut file) {
-                Ok(cache) => return Ok(cache),
-                Err(err) => {
-                    eprintln!("Error deserializing cache: {}", err);
-                }
-            }
-        }
+    pub async fn get() -> Result<Self, Box<dyn std::error::Error>> {
+        APICall::new(ENDPOINT, ITEMS_FILE_NAME)
+            .load_cache_or_call()
+            .await
     }
-
-    let api_call = api_call().await?;
-    File::create(&file_path)?.write_all(serde_json::to_string(&api_call)?.as_bytes())?;
-    Ok(api_call)
-}
-
-fn deserialize(file: &mut File) -> Result<ItemDefinition, Box<dyn std::error::Error>> {
-    let mut buffer = String::new();
-    file.read_to_string(&mut buffer)?;
-    Ok(serde_json::from_str(&buffer)?)
 }
