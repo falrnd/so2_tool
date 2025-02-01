@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use itertools::Itertools;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use super::APICall;
 
@@ -9,24 +9,48 @@ pub const ENDPOINT: &str = "https://so2-api.mutoys.com/master/item.json";
 
 const ITEMS_FILE_NAME: &str = r"item.json";
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Deserialize)]
+pub struct Category(pub String);
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Class(pub String);
+
+#[derive(Debug, Clone, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Id(pub u32);
+
+#[derive(Debug, Clone, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub struct StackSize(pub u32);
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Name(pub String);
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Scale(pub String);
+
+#[derive(Debug, Clone, Deserialize)]
 pub struct Item {
-    pub category: String,
-    pub class: String,
-    pub item_id: u32,
-    pub limit: u32,
-    pub name: String,
-    pub scale: String,
+    pub category: Category,
+    pub class: Class,
+    pub item_id: Id,
+    pub limit: StackSize,
+    pub name: Name,
+    pub scale: Scale,
     pub sort: u32,
 }
 
 impl std::fmt::Display for Item {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} ({}/{}) ", self.name, self.category, self.class)
+        write!(f, "{} ({}/{}) ", self.name.0, self.category.0, self.class.0)
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+impl std::hash::Hash for Item {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.item_id.hash(state);
+    }
+}
+
+#[derive(Debug, Deserialize)]
 pub struct ItemResponse {
     #[serde(flatten)]
     value: HashMap<String, Item>,
