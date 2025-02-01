@@ -5,6 +5,7 @@ use std::io::{BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
+pub mod area;
 pub mod item;
 pub mod people;
 
@@ -37,7 +38,7 @@ struct APICall<Response> {
 
 impl<Response> APICall<Response>
 where
-    Response: for<'de> serde::de::Deserialize<'de> + serde::ser::Serialize,
+    Response: for<'de> serde::de::Deserialize<'de>,
 {
     pub fn new(endpoint: &str, cache_file_name: &str) -> Self {
         Self {
