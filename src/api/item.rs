@@ -7,7 +7,7 @@ use super::APICall;
 
 pub const ENDPOINT: &str = "https://so2-api.mutoys.com/master/item.json";
 
-const ITEMS_FILE_NAME: &str = r"item_definition.json";
+const ITEMS_FILE_NAME: &str = r"item.json";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Item {
@@ -27,12 +27,12 @@ impl std::fmt::Display for Item {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct ItemDefinition {
+pub struct ItemResponse {
     #[serde(flatten)]
     value: HashMap<String, Item>,
 }
 
-impl ItemDefinition {
+impl ItemResponse {
     pub fn values(&self) -> impl Iterator<Item = &Item> {
         self.value.values().sorted_by_key(|item| item.sort)
     }
