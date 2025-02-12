@@ -5,6 +5,8 @@ use std::io::{BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
+use url::Url;
+
 pub mod schema;
 
 fn api_cache_root() -> &'static Path {
@@ -15,9 +17,9 @@ fn create_cache_dir() {
     let _ = std::fs::create_dir_all(api_cache_root());
 }
 
-pub fn get_file_path<P: AsRef<Path>>(item_filename: P) -> PathBuf {
+pub fn get_file_path<P: AsRef<Path>>(filename: P) -> PathBuf {
     create_cache_dir();
-    Path::new(api_cache_root()).join(item_filename)
+    Path::new(api_cache_root()).join(filename)
 }
 
 pub const fn api_call_default_interval() -> Duration {
@@ -26,7 +28,7 @@ pub const fn api_call_default_interval() -> Duration {
 
 struct APICall<Response> {
     // API endpoint & cache file name
-    pub endpoint: String,
+    pub endpoint: Url,
     pub cache_file_path: PathBuf,
 
     pub interval: Duration,
@@ -38,9 +40,9 @@ impl<Response> APICall<Response>
 where
     Response: for<'de> serde::de::Deserialize<'de>,
 {
-    pub fn new(endpoint: &str, cache_file_name: &str) -> Self {
+    pub fn new(endpoint: Url, cache_file_name: &str) -> Self {
         Self {
-            endpoint: endpoint.to_string(),
+            endpoint,
             cache_file_path: get_file_path(cache_file_name),
             interval: api_call_default_interval(),
             _phantom: std::marker::PhantomData,
@@ -51,11 +53,10 @@ where
         Self { interval, ..self }
     }
 
-    async fn api_call(&self) -> Result<String, reqwest::Error> {
-        println!("API call: {}", self.endpoint);
-        reqwest::get(&self.endpoint).await?.text().await
+    async fn api_call(endpoint: Url) -> Result<String, reqwest::Error> {
+        println!("API call: {}", endpoint);
+        reqwest::get(endpoint).await?.text().await
     }
-
     pub async fn load_cache_or_call(self) -> Result<Response, Box<dyn std::error::Error>> {
         if self.cache_file_path.exists() {
             let file = File::open(&self.cache_file_path)?;
@@ -66,7 +67,7 @@ where
             }
         }
 
-        let api_call = self.api_call().await?;
+        let api_call = Self::api_call(self.endpoint).await?;
         File::create(&self.cache_file_path)?.write_all(api_call.as_bytes())?;
         Ok(serde_json::from_str(&api_call)?)
     }
