@@ -1,7 +1,11 @@
-use serde::Deserialize;
-use std::{collections::HashMap, time::Duration};
+use std::collections::HashMap;
+use std::time::Duration;
 
-use super::{area, APICall};
+use serde::Deserialize;
+
+use crate::api::APICall;
+
+use super::area;
 
 pub const ENDPOINT: &str = "https://so2-api.mutoys.com/json/people/all.json";
 

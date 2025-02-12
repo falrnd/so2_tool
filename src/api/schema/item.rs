@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use itertools::Itertools;
 use serde::Deserialize;
 
-use super::APICall;
+use crate::api::APICall;
 
 pub const ENDPOINT: &str = "https://so2-api.mutoys.com/master/item.json";
 

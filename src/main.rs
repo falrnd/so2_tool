@@ -3,8 +3,7 @@ use iced::widget::text::Shaping;
 use iced::widget::{button, column, container, pick_list, row, scrollable, text};
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
-use so2_tool::api::item::ItemResponse;
-use so2_tool::api::people::PeopleResponse;
+use so2_tool::api::schema::{item, people};
 
 pub fn main() -> iced::Result {
     iced::application(
@@ -47,7 +46,7 @@ impl ItemsLabel {
             Message::LoadItems => {
                 return Task::perform(
                     async {
-                        ItemResponse::get().await.map_or_else(
+                        item::Response::get().await.map_or_else(
                             |e| format!("error: {e}"),
                             |v| v.values().map(ToString::to_string).join("\n"),
                         )
@@ -62,7 +61,7 @@ impl ItemsLabel {
             Message::LoadPeople => {
                 return Task::perform(
                     async {
-                        PeopleResponse::get().await.map_or_else(
+                        people::Response::get().await.map_or_else(
                             |e| format!("error: {e}"),
                             |v| v.values().map(|v| format!("{v:?}")).join("\n"),
                         )

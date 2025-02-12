@@ -5,9 +5,6 @@ use std::io::{BufReader, Write};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-pub mod area;
-pub mod item;
-pub mod people;
 pub mod schema;
 
 fn api_cache_root() -> &'static Path {
