@@ -16,17 +16,15 @@ pub fn main() -> iced::Result {
 }
 
 struct ItemsLabel {
-    items: String,
-    people: String,
+    display: String,
     theme: Theme,
 }
 
 impl Default for ItemsLabel {
     fn default() -> Self {
         Self {
-            items: "Not Loaded".to_string(),
-            people: "Not Loaded".to_string(),
-            theme: Theme::Dark,
+            display: String::new(),
+            theme: Theme::TokyoNightStorm,
         }
     }
 }
@@ -55,7 +53,7 @@ impl ItemsLabel {
             }
             Message::ItemsLoaded(v) => {
                 println!("Items loaded");
-                self.items = v;
+                self.display = v;
             }
             Message::LoadPeople => {
                 return Task::perform(
@@ -69,7 +67,7 @@ impl ItemsLabel {
             }
             Message::PeopleLoaded(v) => {
                 println!("People loaded");
-                self.people = v;
+                self.display = v;
             }
             Message::ThemeChanged(theme) => {
                 println!("Theme changed to {} {{{:?}}}", theme, theme.palette());
@@ -87,8 +85,7 @@ impl ItemsLabel {
             self.theme_selector_view(),
             row![
                 column![items_load, people_load].spacing(5),
-                self.scrollable_text_view(&self.items),
-                self.scrollable_text_view(&self.people),
+                self.scrollable_text_view(&self.display),
             ]
             .spacing(10)
         ]
