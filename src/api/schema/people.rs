@@ -21,21 +21,21 @@ impl Schema for Quely {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Response(Vec<PeopleOfTown>);
+pub struct Response(Vec<People>);
 
 #[derive(Debug, Deserialize)]
-pub struct PeopleOfTown {
+pub struct People {
     pub area_id: area::Id,
     pub unit: Population,
     /// key: "1", "2", ...
-    pub persons: HashMap<String, Person>,
+    pub persons: HashMap<String, Segment>,
     pub trend: Option<Vec<Trend>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct Person {
+pub struct Segment {
     pub unit: Population,
-    pub name: Name,
+    pub name: SegmentType,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -51,7 +51,7 @@ pub struct Trend {
 pub struct Population(pub u32);
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct Name(pub String);
+pub struct SegmentType(pub String);
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct TrendStatusString(pub String);
@@ -71,12 +71,12 @@ impl Response {
             .await
     }
 
-    pub fn values(&self) -> impl Iterator<Item = &PeopleOfTown> {
+    pub fn values(&self) -> impl Iterator<Item = &People> {
         self.0.iter()
     }
 }
 
-impl std::fmt::Display for PeopleOfTown {
+impl std::fmt::Display for People {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -93,7 +93,7 @@ impl std::fmt::Display for PeopleOfTown {
     }
 }
 
-impl std::fmt::Display for Person {
+impl std::fmt::Display for Segment {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}({})", self.name.0, self.unit.0)
     }
