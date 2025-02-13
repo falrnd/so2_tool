@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::time::Duration;
 
+use itertools::Itertools;
 use serde::Deserialize;
 
 use crate::api::APICall;
@@ -72,5 +73,38 @@ impl Response {
 
     pub fn values(&self) -> impl Iterator<Item = &PeopleOfTown> {
         self.0.iter()
+    }
+}
+
+impl std::fmt::Display for PeopleOfTown {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "AreaInfo {{ Area{:?}, {:?}, people: [{}], trend: [{}] }}",
+            self.area_id,
+            self.unit,
+            self.persons
+                .iter()
+                .sorted_by_cached_key(|v| v.0.parse::<i32>().unwrap())
+                .map(|v| v.1)
+                .join(", "),
+            self.trend.iter().flatten().join(", "),
+        )
+    }
+}
+
+impl std::fmt::Display for Person {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}({})", self.name.0, self.unit.0)
+    }
+}
+
+impl std::fmt::Display for Trend {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "Trend {{ Area{:?}, {} ({}) }}",
+            self.area_id, self.message.0, self.status.0,
+        )
     }
 }

@@ -46,10 +46,9 @@ impl ItemsLabel {
             Message::LoadItems => {
                 return Task::perform(
                     async {
-                        item::Response::get().await.map_or_else(
-                            |e| format!("error: {e}"),
-                            |v| v.values().map(ToString::to_string).join("\n"),
-                        )
+                        item::Response::get()
+                            .await
+                            .map_or_else(|e| format!("error: {e}"), |v| v.values().join("\n"))
                     },
                     Message::ItemsLoaded,
                 )
@@ -61,10 +60,9 @@ impl ItemsLabel {
             Message::LoadPeople => {
                 return Task::perform(
                     async {
-                        people::Response::get().await.map_or_else(
-                            |e| format!("error: {e}"),
-                            |v| v.values().map(|v| format!("{v:?}")).join("\n"),
-                        )
+                        people::Response::get()
+                            .await
+                            .map_or_else(|e| format!("error: {e}"), |v| v.values().join("\n\n"))
                     },
                     Message::PeopleLoaded,
                 )
