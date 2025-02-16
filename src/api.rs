@@ -3,16 +3,13 @@
 use std::fs::File;
 use std::io::{BufReader, Write};
 use std::path::PathBuf;
-use std::sync::LazyLock;
 
-use cache::Cacheable;
 use schema::Schema;
 
-pub mod cache;
+use crate::app::cache::{Cacheable, DEFAULT_CACHE_ROOT};
+
 pub mod model;
 pub mod schema;
-
-static DEFAULT_CACHE_ROOT: LazyLock<PathBuf> = LazyLock::new(|| r"data\api\cache".into());
 
 pub struct APICall<Request: Schema + Cacheable> {
     pub cache_root: PathBuf,
@@ -26,7 +23,7 @@ where
 {
     pub fn new(request: Request) -> Self {
         Self {
-            cache_root: DEFAULT_CACHE_ROOT.clone(),
+            cache_root: DEFAULT_CACHE_ROOT.to_path_buf(),
             request,
         }
     }
