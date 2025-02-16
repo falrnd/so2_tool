@@ -4,19 +4,19 @@ use std::time::Duration;
 use itertools::Itertools;
 use serde::Deserialize;
 
-use crate::api::APICall;
-
 use super::{area, Schema};
 
-const FILE_NAME: &str = r"people.json";
+pub struct Request {}
 
-pub struct Quely {}
-
-impl Schema for Quely {
+impl Schema for Request {
     type Response = Response;
 
     fn endpoint(&self) -> url::Url {
         super::ORIGIN.join("json/people/all.json").unwrap()
+    }
+
+    fn min_interval(&self) -> Duration {
+        Duration::from_secs(600)
     }
 }
 
@@ -64,13 +64,6 @@ pub struct TrendStatus(pub i8);
 pub struct TrendMessage(pub String);
 
 impl Response {
-    pub async fn get() -> Result<Self, Box<dyn std::error::Error>> {
-        APICall::new(Quely {}.endpoint(), FILE_NAME)
-            .set_interval(Duration::from_secs(600))
-            .load_cache_or_call()
-            .await
-    }
-
     pub fn values(&self) -> impl Iterator<Item = &People> {
         self.0.iter()
     }

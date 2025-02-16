@@ -7,6 +7,7 @@ use iced::widget::{button, column, container, pick_list, row, scrollable, text, 
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
 use so2_tool::api::schema::{item, people};
+use so2_tool::api::APICall;
 
 pub fn main() -> iced::Result {
     iced::application(
@@ -59,12 +60,18 @@ impl ItemsLabel {
             Message::Load(target) => Task::perform(
                 async move {
                     match target {
-                        LoadTarget::Item => {
-                            Self::to_display(item::Response::get().await.map(|v| v.into_values()))
-                        }
-                        LoadTarget::People => {
-                            Self::to_display(people::Response::get().await.map(|v| v.into_values()))
-                        }
+                        LoadTarget::Item => Self::to_display(
+                            APICall::new(item::Request {})
+                                .load_cache_or_call()
+                                .await
+                                .map(|v| v.into_values()),
+                        ),
+                        LoadTarget::People => Self::to_display(
+                            APICall::new(people::Request {})
+                                .load_cache_or_call()
+                                .await
+                                .map(|v| v.into_values()),
+                        ),
                     }
                 },
                 Message::Loaded,

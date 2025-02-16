@@ -2,73 +2,64 @@
 
 use std::fs::File;
 use std::io::{BufReader, Write};
-use std::path::{Path, PathBuf};
-use std::time::Duration;
+use std::path::PathBuf;
+use std::sync::LazyLock;
 
-use url::Url;
+use cache::Cacheable;
+use schema::Schema;
 
+pub mod cache;
 pub mod schema;
 
-fn api_cache_root() -> &'static Path {
-    Path::new(r"data\api\cache")
+static DEFAULT_CACHE_ROOT: LazyLock<PathBuf> = LazyLock::new(|| r"data\api\cache".into());
+
+pub struct APICall<Request: Schema + Cacheable> {
+    pub cache_root: PathBuf,
+    pub request: Request,
 }
 
-fn create_cache_dir() {
-    let _ = std::fs::create_dir_all(api_cache_root());
-}
-
-pub fn get_file_path<P: AsRef<Path>>(filename: P) -> PathBuf {
-    create_cache_dir();
-    Path::new(api_cache_root()).join(filename)
-}
-
-pub const fn api_call_default_interval() -> Duration {
-    Duration::from_secs(3600)
-}
-
-struct APICall<Response> {
-    // API endpoint & cache file name
-    pub endpoint: Url,
-    pub cache_file_path: PathBuf,
-
-    pub interval: Duration,
-
-    _phantom: std::marker::PhantomData<Response>,
-}
-
-impl<Response> APICall<Response>
+impl<Request> APICall<Request>
 where
-    Response: for<'de> serde::de::Deserialize<'de>,
+    Request: Schema + Cacheable,
+    <Request as Schema>::Response: for<'de> serde::de::Deserialize<'de>,
 {
-    pub fn new(endpoint: Url, cache_file_name: &str) -> Self {
+    pub fn new(request: Request) -> Self {
         Self {
-            endpoint,
-            cache_file_path: get_file_path(cache_file_name),
-            interval: api_call_default_interval(),
-            _phantom: std::marker::PhantomData,
+            cache_root: DEFAULT_CACHE_ROOT.clone(),
+            request,
         }
     }
 
-    pub fn set_interval(self, interval: Duration) -> Self {
-        Self { interval, ..self }
+    pub fn set_cache_root(&mut self, cache_root: PathBuf) -> &mut Self {
+        self.cache_root = cache_root;
+        self
     }
 
-    async fn api_call(endpoint: Url) -> Result<String, reqwest::Error> {
+    fn cache_file_path(&self) -> PathBuf {
+        self.cache_root.join(self.request.file_path())
+    }
+
+    async fn api_call(self) -> Result<String, reqwest::Error> {
+        let endpoint = self.request.endpoint();
         println!("API call: {}", endpoint);
         reqwest::get(endpoint).await?.text().await
     }
-    pub async fn load_cache_or_call(self) -> Result<Response, Box<dyn std::error::Error>> {
-        if self.cache_file_path.exists() {
-            let file = File::open(&self.cache_file_path)?;
+
+    pub async fn load_cache_or_call(self) -> Result<Request::Response, Box<dyn std::error::Error>> {
+        let cache_file_path = self.cache_file_path();
+
+        if cache_file_path.exists() {
+            let file = File::open(&cache_file_path)?;
             let file_last_modified = file.metadata()?.modified()?;
-            if file_last_modified.elapsed()? < self.interval {
+            if file_last_modified.elapsed()? < self.request.min_interval() {
                 let cache = serde_json::from_reader(BufReader::new(file))?;
                 return Ok(cache);
             }
         }
 
-        let api_call = Self::api_call(self.endpoint).await?;
-        File::create(&self.cache_file_path)?.write_all(api_call.as_bytes())?;
+        let api_call = self.api_call().await?;
+        let _ = std::fs::create_dir_all(cache_file_path.parent().unwrap());
+        File::create(&cache_file_path)?.write_all(api_call.as_bytes())?;
         Ok(serde_json::from_str(&api_call)?)
     }
 }

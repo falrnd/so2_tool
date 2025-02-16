@@ -3,15 +3,11 @@ use std::collections::HashMap;
 use itertools::Itertools;
 use serde::Deserialize;
 
-use crate::api::APICall;
-
 use super::Schema;
 
-const FILE_NAME: &str = r"item.json";
+pub struct Request {}
 
-pub struct Quely {}
-
-impl super::Schema for Quely {
+impl Schema for Request {
     type Response = Response;
 
     fn endpoint(&self) -> url::Url {
@@ -69,12 +65,6 @@ impl std::hash::Hash for Item {
 impl Response {
     pub fn values(&self) -> impl Iterator<Item = &Item> {
         self.value.values().sorted_by_key(|item| item.sort)
-    }
-
-    pub async fn get() -> Result<Self, Box<dyn std::error::Error>> {
-        APICall::new(Quely {}.endpoint(), FILE_NAME)
-            .load_cache_or_call()
-            .await
     }
 
     pub fn into_values(self) -> impl Iterator<Item = Item> {
