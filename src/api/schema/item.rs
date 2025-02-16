@@ -3,17 +3,7 @@ use std::collections::HashMap;
 use itertools::Itertools;
 use serde::Deserialize;
 
-use super::Schema;
-
 pub struct Request {}
-
-impl Schema for Request {
-    type Response = Response;
-
-    fn endpoint(&self) -> url::Url {
-        super::ORIGIN.join("master/item.json").unwrap()
-    }
-}
 
 #[derive(Debug, Deserialize)]
 pub struct Response {

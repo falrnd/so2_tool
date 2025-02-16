@@ -1,5 +1,4 @@
-use std::sync::LazyLock;
-use std::time::Duration;
+use std::{sync::LazyLock, time::Duration};
 
 use url::Url;
 
@@ -19,5 +18,25 @@ pub trait Schema {
 
     fn min_interval(&self) -> Duration {
         DEFAULT_INTERVAL
+    }
+}
+
+impl Schema for item::Request {
+    type Response = item::Response;
+
+    fn endpoint(&self) -> Url {
+        ORIGIN.join("master/item.json").unwrap()
+    }
+}
+
+impl Schema for people::Request {
+    type Response = people::Response;
+
+    fn endpoint(&self) -> Url {
+        ORIGIN.join("json/people/all.json").unwrap()
+    }
+
+    fn min_interval(&self) -> Duration {
+        Duration::from_secs(600)
     }
 }

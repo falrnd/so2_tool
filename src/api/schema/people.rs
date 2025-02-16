@@ -1,24 +1,11 @@
 use std::collections::HashMap;
-use std::time::Duration;
 
 use itertools::Itertools;
 use serde::Deserialize;
 
-use super::{area, Schema};
+use super::area;
 
 pub struct Request {}
-
-impl Schema for Request {
-    type Response = Response;
-
-    fn endpoint(&self) -> url::Url {
-        super::ORIGIN.join("json/people/all.json").unwrap()
-    }
-
-    fn min_interval(&self) -> Duration {
-        Duration::from_secs(600)
-    }
-}
 
 #[derive(Debug, Deserialize)]
 pub struct Response(Vec<People>);
