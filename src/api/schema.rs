@@ -17,6 +17,11 @@ pub trait Schema {
     fn min_interval(&self) -> Duration {
         DEFAULT_INTERVAL
     }
+
+    // for 特殊フォーマット
+    fn parse(&self, bytes: &[u8]) -> Result<Self::Response, serde_json::Error> {
+        serde_json::from_slice(bytes)
+    }
 }
 
 impl Schema for item::Request {

@@ -62,13 +62,13 @@ impl ItemsLabel {
                     match target {
                         LoadTarget::Item => Self::to_display(
                             APILoader::new(item::Request {})
-                                .load_cache_or_call()
+                                .get()
                                 .await
                                 .map(|v| v.into_values()),
                         ),
                         LoadTarget::People => Self::to_display(
                             APILoader::new(people::Request {})
-                                .load_cache_or_call()
+                                .get()
                                 .await
                                 .map(|v| v.into_values()),
                         ),
