@@ -74,6 +74,10 @@ impl Response {
     pub fn values(&self) -> impl Iterator<Item = &People> {
         self.0.iter()
     }
+
+    pub fn into_values(self) -> impl Iterator<Item = People> {
+        self.0.into_iter()
+    }
 }
 
 impl std::fmt::Display for People {

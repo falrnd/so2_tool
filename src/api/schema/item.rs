@@ -76,4 +76,8 @@ impl Response {
             .load_cache_or_call()
             .await
     }
+
+    pub fn into_values(self) -> impl Iterator<Item = Item> {
+        self.value.into_values().sorted_by_key(|item| item.sort)
+    }
 }
