@@ -6,7 +6,7 @@ use iced::widget::text::Shaping;
 use iced::widget::{button, column, container, pick_list, row, scrollable, text, Row};
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
-use so2_tool::api::model::{item, people};
+use so2_tool::api::schema::request::{Item, People};
 use so2_tool::app::api_loader::APILoader;
 
 pub fn main() -> iced::Result {
@@ -61,13 +61,10 @@ impl ItemsLabel {
                 async move {
                     match target {
                         LoadTarget::Item => Self::to_display(
-                            APILoader::new(item::Request {})
-                                .get()
-                                .await
-                                .map(|v| v.into_values()),
+                            APILoader::new(Item()).get().await.map(|v| v.into_values()),
                         ),
                         LoadTarget::People => Self::to_display(
-                            APILoader::new(people::Request {})
+                            APILoader::new(People())
                                 .get()
                                 .await
                                 .map(|v| v.into_values()),

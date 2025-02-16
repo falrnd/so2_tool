@@ -3,8 +3,6 @@ use std::collections::HashMap;
 use itertools::Itertools;
 use serde::Deserialize;
 
-pub struct Request {}
-
 #[derive(Debug, Deserialize)]
 pub struct Response {
     #[serde(flatten)]

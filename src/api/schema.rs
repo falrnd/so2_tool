@@ -24,22 +24,29 @@ pub trait Schema {
     }
 }
 
-impl Schema for item::Request {
-    type Response = item::Response;
+pub mod request {
+    use super::*;
 
-    fn endpoint(&self) -> Url {
-        ORIGIN.join("master/item.json").unwrap()
+    pub struct Item();
+    pub struct People();
+
+    impl Schema for Item {
+        type Response = item::Response;
+
+        fn endpoint(&self) -> Url {
+            ORIGIN.join("master/item.json").unwrap()
+        }
     }
-}
 
-impl Schema for people::Request {
-    type Response = people::Response;
+    impl Schema for People {
+        type Response = people::Response;
 
-    fn endpoint(&self) -> Url {
-        ORIGIN.join("json/people/all.json").unwrap()
-    }
+        fn endpoint(&self) -> Url {
+            ORIGIN.join("json/people/all.json").unwrap()
+        }
 
-    fn min_interval(&self) -> Duration {
-        Duration::from_secs(600)
+        fn min_interval(&self) -> Duration {
+            Duration::from_secs(600)
+        }
     }
 }

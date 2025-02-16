@@ -5,8 +5,6 @@ use serde::Deserialize;
 
 use super::area;
 
-pub struct Request {}
-
 #[derive(Debug, Deserialize)]
 pub struct Response(Vec<People>);
 
