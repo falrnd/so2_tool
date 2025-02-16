@@ -27,14 +27,23 @@ pub trait Schema {
 pub mod request {
     use super::*;
 
-    pub struct Item();
+    pub struct OfficialItem();
+    pub struct RecipeItem();
     pub struct People();
 
-    impl Schema for Item {
-        type Response = item::Response;
+    impl Schema for OfficialItem {
+        type Response = item::Official;
 
         fn endpoint(&self) -> Url {
             ORIGIN.join("master/item.json").unwrap()
+        }
+    }
+
+    impl Schema for RecipeItem {
+        type Response = item::Recipe;
+
+        fn endpoint(&self) -> Url {
+            ORIGIN.join("json/master/recipe_item.json").unwrap()
         }
     }
 

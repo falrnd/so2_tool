@@ -6,7 +6,7 @@ use iced::widget::text::Shaping;
 use iced::widget::{button, column, container, pick_list, row, scrollable, text, Row};
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
-use so2_tool::api::schema::request::{Item, People};
+use so2_tool::api::schema::request::{OfficialItem, People, RecipeItem};
 use so2_tool::app::api_loader::APILoader;
 
 pub fn main() -> iced::Result {
@@ -35,7 +35,8 @@ impl Default for ItemsLabel {
 
 #[derive(Debug, Clone, Copy)]
 enum LoadTarget {
-    Item,
+    OfficialItem,
+    RecipeItem,
     People,
 }
 
@@ -60,8 +61,17 @@ impl ItemsLabel {
             Message::Load(target) => Task::perform(
                 async move {
                     match target {
-                        LoadTarget::Item => Self::to_display(
-                            APILoader::new(Item()).get().await.map(|v| v.into_values()),
+                        LoadTarget::OfficialItem => Self::to_display(
+                            APILoader::new(OfficialItem())
+                                .get()
+                                .await
+                                .map(|v| v.0.into_values()),
+                        ),
+                        LoadTarget::RecipeItem => Self::to_display(
+                            APILoader::new(RecipeItem())
+                                .get()
+                                .await
+                                .map(|v| v.0.into_values()),
                         ),
                         LoadTarget::People => Self::to_display(
                             APILoader::new(People())
@@ -86,12 +96,15 @@ impl ItemsLabel {
     }
 
     fn view(&self) -> Element<Message> {
-        let items_load = button("Item").on_press(Message::Load(LoadTarget::Item));
-        let people_load = button("People").on_press(Message::Load(LoadTarget::People));
+        let item_o_load =
+            button("item(official)").on_press(Message::Load(LoadTarget::OfficialItem));
+        let item_r_load = button("item(recipe)").on_press(Message::Load(LoadTarget::RecipeItem));
+        let people_load = button("people").on_press(Message::Load(LoadTarget::People));
 
         column![
             row![
-                items_load,
+                item_o_load,
+                item_r_load,
                 people_load,
                 container(self.theme_selector_view()).align_right(Length::Fill)
             ]
