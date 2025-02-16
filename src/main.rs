@@ -1,6 +1,6 @@
 use iced::alignment::Vertical;
 use iced::widget::text::Shaping;
-use iced::widget::{button, column, container, pick_list, row, scrollable, text};
+use iced::widget::{button, column, container, pick_list, row, scrollable, text, Row};
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
 use so2_tool::api::schema::{item, people};
@@ -23,7 +23,7 @@ struct ItemsLabel {
 impl Default for ItemsLabel {
     fn default() -> Self {
         Self {
-            display: String::new(),
+            display: "press button".to_string(),
             theme: Theme::TokyoNightStorm,
         }
     }
@@ -60,7 +60,7 @@ impl ItemsLabel {
                     async {
                         people::Response::get()
                             .await
-                            .map_or_else(|e| format!("error: {e}"), |v| v.values().join("\n\n"))
+                            .map_or_else(|e| format!("error: {e}"), |v| v.values().join("\n"))
                     },
                     Message::PeopleLoaded,
                 )
@@ -78,16 +78,18 @@ impl ItemsLabel {
     }
 
     fn view(&self) -> Element<Message> {
-        let items_load = button("Load Items").on_press(Message::LoadItems);
-        let people_load = button("Load People").on_press(Message::LoadPeople);
+        let items_load = button("Item").on_press(Message::LoadItems);
+        let people_load = button("People").on_press(Message::LoadPeople);
 
         column![
-            self.theme_selector_view(),
             row![
-                column![items_load, people_load].spacing(5),
-                self.scrollable_text_view(&self.display),
+                items_load,
+                people_load,
+                container(self.theme_selector_view()).align_right(Length::Fill)
             ]
-            .spacing(10)
+            .width(Length::Fill)
+            .spacing(5),
+            self.scrollable_text_view(&self.display),
         ]
         .spacing(10)
         .padding(20)
@@ -98,13 +100,13 @@ impl ItemsLabel {
         self.view() //.explain(iced::Color::WHITE)
     }
 
-    fn theme_selector_view(&self) -> Element<Message> {
-        let title = text("テーマ：")
+    fn theme_selector_view(&self) -> Row<Message> {
+        let title = text("ColorTheme: ")
             .shaping(Shaping::Advanced)
             .width(Length::Shrink);
         let list = pick_list(Theme::ALL, Some(&self.theme), Message::ThemeChanged);
 
-        row![title, list].align_y(Vertical::Center).into()
+        row![title, list].align_y(Vertical::Center)
     }
 
     fn scrollable_text_view<'a>(&self, str: &'a str) -> Element<'a, Message> {
