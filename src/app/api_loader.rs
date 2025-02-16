@@ -82,6 +82,7 @@ where
         let cache_file_path = self.cache_file_path();
         let _ = std::fs::create_dir_all(cache_file_path.parent().expect("invalid cache dir"));
         File::create(&cache_file_path)?.write_all(api_call)?;
+        println!("Save cache: {:?}", cache_file_path);
         Ok(())
     }
 
