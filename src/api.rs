@@ -9,6 +9,7 @@ use cache::Cacheable;
 use schema::Schema;
 
 pub mod cache;
+pub mod model;
 pub mod schema;
 
 static DEFAULT_CACHE_ROOT: LazyLock<PathBuf> = LazyLock::new(|| r"data\api\cache".into());

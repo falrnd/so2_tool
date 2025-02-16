@@ -2,9 +2,7 @@ use std::{sync::LazyLock, time::Duration};
 
 use url::Url;
 
-pub mod area;
-pub mod item;
-pub mod people;
+use super::model::{item, people};
 
 const DEFAULT_INTERVAL: Duration = Duration::from_secs(3600);
 
