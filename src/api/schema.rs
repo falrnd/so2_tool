@@ -2,8 +2,6 @@ use std::{sync::LazyLock, time::Duration};
 
 use url::Url;
 
-use super::model::{item, people};
-
 const DEFAULT_INTERVAL: Duration = Duration::from_secs(3600);
 
 pub static ORIGIN: LazyLock<Url> =
@@ -25,11 +23,15 @@ pub trait Schema {
 }
 
 pub mod request {
+    use crate::api::model::{area_summary, item, people};
+
     use super::*;
 
-    pub struct OfficialItem();
-    pub struct RecipeItem();
-    pub struct People();
+    pub struct OfficialItem;
+    pub struct RecipeItem;
+    pub struct People;
+
+    pub struct AreaSummary;
 
     impl Schema for OfficialItem {
         type Response = item::Official;
@@ -56,6 +58,14 @@ pub mod request {
 
         fn min_interval(&self) -> Duration {
             Duration::from_secs(600)
+        }
+    }
+
+    impl Schema for AreaSummary {
+        type Response = area_summary::Response;
+
+        fn endpoint(&self) -> Url {
+            ORIGIN.join("json/area/summary.json").unwrap()
         }
     }
 }

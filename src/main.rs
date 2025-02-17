@@ -6,7 +6,7 @@ use iced::widget::text::Shaping;
 use iced::widget::{button, column, container, pick_list, row, scrollable, text, Row};
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
-use so2_tool::api::schema::request::{OfficialItem, People, RecipeItem};
+use so2_tool::api::schema::request::{AreaSummary, OfficialItem, People, RecipeItem};
 use so2_tool::app::api_loader::APILoader;
 
 pub fn main() -> iced::Result {
@@ -38,6 +38,7 @@ enum LoadTarget {
     OfficialItem,
     RecipeItem,
     People,
+    AreaSummary,
 }
 
 #[derive(Debug, Clone)]
@@ -62,22 +63,25 @@ impl ItemsLabel {
                 async move {
                     match target {
                         LoadTarget::OfficialItem => Self::to_display(
-                            APILoader::new(OfficialItem())
+                            APILoader::new(OfficialItem)
                                 .get()
                                 .await
                                 .map(|v| v.0.into_values()),
                         ),
                         LoadTarget::RecipeItem => Self::to_display(
-                            APILoader::new(RecipeItem())
+                            APILoader::new(RecipeItem)
                                 .get()
                                 .await
                                 .map(|v| v.0.into_values()),
                         ),
                         LoadTarget::People => Self::to_display(
-                            APILoader::new(People())
+                            APILoader::new(People).get().await.map(|v| v.into_values()),
+                        ),
+                        LoadTarget::AreaSummary => Self::to_display(
+                            APILoader::new(AreaSummary)
                                 .get()
                                 .await
-                                .map(|v| v.into_values()),
+                                .map(|v| v.0.into_iter()),
                         ),
                     }
                 },
@@ -96,16 +100,14 @@ impl ItemsLabel {
     }
 
     fn view(&self) -> Element<Message> {
-        let item_o_load =
-            button("item(official)").on_press(Message::Load(LoadTarget::OfficialItem));
-        let item_r_load = button("item(recipe)").on_press(Message::Load(LoadTarget::RecipeItem));
-        let people_load = button("people").on_press(Message::Load(LoadTarget::People));
+        let load_button = |label, target| button(label).on_press(Message::Load(target));
 
         column![
             row![
-                item_o_load,
-                item_r_load,
-                people_load,
+                load_button("item(official)", LoadTarget::OfficialItem),
+                load_button("item(recipe)", LoadTarget::RecipeItem),
+                load_button("people", LoadTarget::People),
+                load_button("area summary", LoadTarget::AreaSummary),
                 container(self.theme_selector_view()).align_right(Length::Fill)
             ]
             .width(Length::Fill)
