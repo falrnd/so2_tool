@@ -54,7 +54,6 @@ pub struct Category(pub String);
 #[derive(Debug, Clone, Deserialize)]
 pub struct Class(pub String);
 
-///
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Id(pub u32);
 
