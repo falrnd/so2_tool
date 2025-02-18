@@ -23,14 +23,14 @@ pub trait Schema {
 }
 
 pub mod request {
-    use crate::api::model::{area_summary, item, people};
+    use crate::api::model::{area_summary, item, people, shop_summary};
 
     use super::*;
 
     pub struct OfficialItem;
     pub struct RecipeItem;
+    pub struct ShopSummary;
     pub struct People;
-
     pub struct AreaSummary;
 
     impl Schema for OfficialItem {
@@ -46,6 +46,14 @@ pub mod request {
 
         fn endpoint(&self) -> Url {
             ORIGIN.join("json/master/recipe_item.json").unwrap()
+        }
+    }
+
+    impl Schema for ShopSummary {
+        type Response = shop_summary::ShopSummary;
+
+        fn endpoint(&self) -> Url {
+            ORIGIN.join("json/shop/summary.json").unwrap()
         }
     }
 

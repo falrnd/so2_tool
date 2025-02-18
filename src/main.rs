@@ -6,7 +6,7 @@ use iced::widget::text::Shaping;
 use iced::widget::{button, column, container, pick_list, row, scrollable, text, Row};
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
-use so2_tool::api::schema::request::{AreaSummary, OfficialItem, People, RecipeItem};
+use so2_tool::api::schema::request::{AreaSummary, OfficialItem, People, RecipeItem, ShopSummary};
 use so2_tool::app::api_loader::APILoader;
 
 pub fn main() -> iced::Result {
@@ -37,6 +37,7 @@ impl Default for ItemsLabel {
 enum LoadTarget {
     OfficialItem,
     RecipeItem,
+    ShopSummary,
     People,
     AreaSummary,
 }
@@ -74,6 +75,10 @@ impl ItemsLabel {
                                 .await
                                 .map(|v| v.0.into_values()),
                         ),
+                        LoadTarget::ShopSummary => {
+                            //...?
+                            Self::to_display(APILoader::new(ShopSummary).get().await.map(|v| [v]))
+                        }
                         LoadTarget::People => {
                             Self::to_display(APILoader::new(People).get().await.map(|v| v.0))
                         }
@@ -103,6 +108,7 @@ impl ItemsLabel {
             row![
                 load_button("item(official)", LoadTarget::OfficialItem),
                 load_button("item(recipe)", LoadTarget::RecipeItem),
+                load_button("shop summary", LoadTarget::ShopSummary),
                 load_button("people", LoadTarget::People),
                 load_button("area summary", LoadTarget::AreaSummary),
                 container(self.theme_selector_view()).align_right(Length::Fill)
