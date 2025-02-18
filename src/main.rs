@@ -74,15 +74,12 @@ impl ItemsLabel {
                                 .await
                                 .map(|v| v.0.into_values()),
                         ),
-                        LoadTarget::People => Self::to_display(
-                            APILoader::new(People).get().await.map(|v| v.into_values()),
-                        ),
-                        LoadTarget::AreaSummary => Self::to_display(
-                            APILoader::new(AreaSummary)
-                                .get()
-                                .await
-                                .map(|v| v.0.into_iter()),
-                        ),
+                        LoadTarget::People => {
+                            Self::to_display(APILoader::new(People).get().await.map(|v| v.0))
+                        }
+                        LoadTarget::AreaSummary => {
+                            Self::to_display(APILoader::new(AreaSummary).get().await.map(|v| v.0))
+                        }
                     }
                 },
                 Message::Loaded,

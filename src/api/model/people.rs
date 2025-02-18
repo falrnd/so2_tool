@@ -6,7 +6,7 @@ use serde::Deserialize;
 use super::area;
 
 #[derive(Debug, Deserialize)]
-pub struct Response(Vec<People>);
+pub struct Response(pub Vec<People>);
 
 #[derive(Debug, Deserialize)]
 pub struct People {
@@ -47,16 +47,6 @@ pub struct TrendStatus(pub i8);
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct TrendMessage(pub String);
-
-impl Response {
-    pub fn values(&self) -> impl Iterator<Item = &People> {
-        self.0.iter()
-    }
-
-    pub fn into_values(self) -> impl Iterator<Item = People> {
-        self.0.into_iter()
-    }
-}
 
 impl std::fmt::Display for People {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
