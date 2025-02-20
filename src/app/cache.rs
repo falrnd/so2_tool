@@ -1,6 +1,6 @@
 use std::{path::Path, sync::LazyLock};
 
-use crate::api::schema::request::{AreaSummary, OfficialItem, People, RecipeItem, ShopSummary};
+use crate::api::schema::{AreaSummary, OfficialItem, People, RecipeItem, ShopSummary};
 
 pub static DEFAULT_CACHE_ROOT: LazyLock<&Path> = LazyLock::new(|| Path::new(r"data\api\cache"));
 

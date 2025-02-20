@@ -6,7 +6,7 @@ use iced::widget::text::Shaping;
 use iced::widget::{button, column, container, pick_list, row, scrollable, text, Row};
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
-use so2_tool::api::schema::request::{AreaSummary, OfficialItem, People, RecipeItem, ShopSummary};
+use so2_tool::api::schema::{AreaSummary, OfficialItem, People, RecipeItem, ShopSummary};
 use so2_tool::app::api_loader::APILoader;
 
 pub fn main() -> iced::Result {
