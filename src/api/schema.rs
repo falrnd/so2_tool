@@ -1,4 +1,4 @@
-use std::{sync::LazyLock, time::Duration};
+use std::{borrow::Cow, sync::LazyLock, time::Duration};
 
 use chrono::{Datelike, NaiveDate};
 use url::Url;
@@ -16,9 +16,8 @@ pub trait Schema {
         DEFAULT_INTERVAL
     }
 
-    // for 特殊フォーマット
-    fn parse(&self, bytes: &[u8]) -> Result<Self::Response, serde_json::Error> {
-        serde_json::from_slice(bytes)
+    fn formatter(&self) -> Formatter {
+        Formatter::default()
     }
 }
 
@@ -148,9 +147,34 @@ impl_schema! {
         ORIGIN.join(&format!("json/request/{yyyy:04}/{mm:02}/{dd:02}/{arg}.json")).unwrap()
     }
     {
-        fn parse(&self, _bytes: &[u8]) -> Result<Self::Response, serde_json::Error> {
-            todo!()
+        fn formatter(&self) -> Formatter {
+            Formatter::Special
         }
     }
     AreaSummary => area_summary::Response { ORIGIN.join("json/area/summary.json").unwrap() }
+}
+
+#[derive(Debug, Default, Clone, Copy)]
+pub enum Formatter {
+    #[default]
+    None,
+    Special,
+}
+
+impl Formatter {
+    pub fn format<'a>(&self, bytes: &'a [u8]) -> Cow<'a, [u8]> {
+        match self {
+            Formatter::None => Cow::Borrowed(bytes),
+            Formatter::Special => {
+                let mut vec = Vec::with_capacity(bytes.len() + 2);
+                vec.push(b'[');
+                vec.extend_from_slice(bytes);
+                if vec.last() == Some(&b',') {
+                    vec.pop();
+                }
+                vec.push(b']');
+                Cow::Owned(vec)
+            }
+        }
+    }
 }

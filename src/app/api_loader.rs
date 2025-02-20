@@ -96,7 +96,9 @@ where
 
         let api_call = self.call_api().await?.bytes().await?;
         self.save_cache(&api_call)?;
-        Ok(self.schema.parse(&api_call)?)
+        Ok(serde_json::from_slice(
+            &self.schema.formatter().format(&api_call),
+        )?)
     }
 }
 
