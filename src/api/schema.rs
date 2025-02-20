@@ -22,8 +22,6 @@ pub trait Schema {
     }
 }
 
-pub struct OfficialItem;
-pub struct RecipeItem;
 pub struct Area;
 pub struct Report(pub NaiveDate);
 pub enum Ranking {
@@ -33,39 +31,27 @@ pub enum Ranking {
 }
 pub struct Sale;
 pub struct Request;
-pub struct ShopSummary;
 pub struct Shop;
 pub struct People;
 pub enum RequestReport {
     All { hour: u8 },
     Shop { shop_id: shop::Id },
 }
-pub struct AreaSummary;
 
 static ORIGIN: LazyLock<Url> = LazyLock::new(|| Url::parse("https://so2-api.mutoys.com").unwrap());
 
-impl Schema for OfficialItem {
-    type Response = item::Official;
-
-    fn endpoint(&self) -> Url {
-        ORIGIN.join("master/item.json").unwrap()
-    }
-}
-
-impl Schema for RecipeItem {
-    type Response = item::Recipe;
-
-    fn endpoint(&self) -> Url {
-        ORIGIN.join("json/master/recipe_item.json").unwrap()
-    }
-}
-
-impl Schema for ShopSummary {
-    type Response = shop_summary::ShopSummary;
-
-    fn endpoint(&self) -> Url {
-        ORIGIN.join("json/shop/summary.json").unwrap()
-    }
+macro_rules! impl_schema {
+    ( $(
+        $self:ident => $res:path { $($ep:stmt)+ }
+    )+ ) => {
+        $(
+            pub struct $self;
+            impl Schema for $self {
+                type Response = $res;
+                fn endpoint(&self) -> Url { $($ep)+ }
+            }
+        )+
+    };
 }
 
 impl Schema for People {
@@ -80,10 +66,9 @@ impl Schema for People {
     }
 }
 
-impl Schema for AreaSummary {
-    type Response = area_summary::Response;
-
-    fn endpoint(&self) -> Url {
-        ORIGIN.join("json/area/summary.json").unwrap()
-    }
+impl_schema! {
+    OfficialItem => item::Official { ORIGIN.join("master/item.json").unwrap() }
+    RecipeItem => item::Recipe { ORIGIN.join("json/master/recipe_item.json").unwrap() }
+    ShopSummary => shop_summary::ShopSummary { ORIGIN.join("json/shop/summary.json").unwrap() }
+    AreaSummary => area_summary::Response { ORIGIN.join("json/area/summary.json").unwrap() }
 }
