@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufReader, Write};
@@ -72,15 +73,16 @@ where
         }
     }
 
-    pub fn save_cache(&self, api_call: &[u8]) -> Result<(), Box<dyn Error>>
+    pub fn save_cache<'a>(&self, api_call: &'a [u8]) -> Result<Cow<'a, [u8]>, Box<dyn Error>>
     where
         S: Cacheable,
     {
         let cache_file_path = self.cache_file_path();
         let _ = std::fs::create_dir_all(cache_file_path.parent().expect("invalid cache dir"));
-        File::create(&cache_file_path)?.write_all(api_call)?;
+        let formatted = self.schema.formatter().format(api_call);
+        File::create(&cache_file_path)?.write_all(&formatted)?;
         println!("Save cache: {:?}", cache_file_path);
-        Ok(())
+        Ok(formatted)
     }
 
     pub async fn get(&self) -> Result<S::Response, Box<dyn Error>>
@@ -97,10 +99,7 @@ where
         }
 
         let api_call = self.call_api().await?.bytes().await?;
-        self.save_cache(&api_call)?;
-        Ok(serde_json::from_slice(
-            &self.schema.formatter().format(&api_call),
-        )?)
+        Ok(serde_json::from_slice(&self.save_cache(&api_call)?)?)
     }
 }
 
