@@ -1,12 +1,15 @@
 use std::error::Error;
 use std::fmt::Display;
 
+use chrono::Timelike;
 use iced::alignment::Vertical;
 use iced::widget::text::Shaping;
-use iced::widget::{button, column, container, pick_list, row, scrollable, text, Row};
+use iced::widget::{Row, button, column, container, pick_list, row, scrollable, text};
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
-use so2_tool::api::schema::{AreaSummary, OfficialItem, People, RecipeItem, ShopSummary};
+use so2_tool::api::schema::{
+    AreaSummary, OfficialItem, People, RecipeItem, RequestReport, ShopSummary,
+};
 use so2_tool::app::api_loader::APILoader;
 
 pub fn main() -> iced::Result {
@@ -39,6 +42,7 @@ enum LoadTarget {
     RecipeItem,
     ShopSummary,
     People,
+    RequestReport,
     AreaSummary,
 }
 
@@ -76,11 +80,21 @@ impl ItemsLabel {
                                 .map(|v| v.0.into_values()),
                         ),
                         LoadTarget::ShopSummary => {
-                            //...?
                             Self::to_display(APILoader::new(ShopSummary).get().await.map(|v| [v]))
                         }
                         LoadTarget::People => {
                             Self::to_display(APILoader::new(People).get().await.map(|v| v.0))
+                        }
+                        LoadTarget::RequestReport => {
+                            let instant = chrono::Local::now();
+                            let date = instant.date_naive();
+                            let hour = instant.hour() as u8;
+                            Self::to_display(
+                                APILoader::new(RequestReport::All { date, hour })
+                                    .get()
+                                    .await
+                                    .map(|v| v.0),
+                            )
                         }
                         LoadTarget::AreaSummary => {
                             Self::to_display(APILoader::new(AreaSummary).get().await.map(|v| v.0))
@@ -110,6 +124,7 @@ impl ItemsLabel {
                 load_button("item(recipe)", LoadTarget::RecipeItem),
                 load_button("shop summary", LoadTarget::ShopSummary),
                 load_button("people", LoadTarget::People),
+                load_button("[wip]requests", LoadTarget::RequestReport),
                 load_button("area summary", LoadTarget::AreaSummary),
                 container(self.theme_selector_view()).align_right(Length::Fill)
             ]

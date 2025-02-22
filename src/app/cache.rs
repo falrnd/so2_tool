@@ -1,6 +1,8 @@
 use std::{path::Path, sync::LazyLock};
 
-use crate::api::schema::{AreaSummary, OfficialItem, People, RecipeItem, ShopSummary};
+use crate::api::schema::{
+    AreaSummary, OfficialItem, People, RecipeItem, RequestReport, ShopSummary,
+};
 
 pub static DEFAULT_CACHE_ROOT: LazyLock<&Path> = LazyLock::new(|| Path::new(r"data\api\cache"));
 
@@ -29,6 +31,16 @@ impl Cacheable for ShopSummary {
 impl Cacheable for People {
     fn file_path(&self) -> impl AsRef<Path> {
         "people.json"
+    }
+}
+
+impl Cacheable for RequestReport {
+    fn file_path(&self) -> impl AsRef<Path> {
+        let arg = match self {
+            RequestReport::All { date, hour } => format!("{}_{}h", date, hour),
+            RequestReport::Shop { date, shop_id } => format!("{}_#{}", date, shop_id.0),
+        };
+        format!("request_report_{arg}.json")
     }
 }
 
