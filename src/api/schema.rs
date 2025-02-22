@@ -132,7 +132,7 @@ impl_schema! {
             Duration::from_secs(600)
         }
     }
-    RequestReport => _UNIMPLEMENTED { |self|
+    RequestReport => request::RequestReport { |self|
         let (date, arg) = match self {
             RequestReport::All { date, hour } => {
                 (date, format!("all/{hour:02}"))
