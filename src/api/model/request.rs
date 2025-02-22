@@ -1,5 +1,6 @@
 use std::fmt::{Display, Formatter, Result};
 
+use chrono::{DateTime, NaiveDateTime};
 use serde::Deserialize;
 
 use super::{item, shop};
@@ -24,22 +25,30 @@ pub struct Request {
     pub item_id: item::Id,
     pub item_count: Amount,
     pub order_price: Price,
-    pub traded_at: String, // NaiveDateTime?
+    pub timestamp: i64,
+}
+
+impl Request {
+    pub fn traded_at(&self) -> NaiveDateTime {
+        DateTime::from_timestamp(self.timestamp, 0)
+            .unwrap()
+            .naive_local()
+    }
 }
 
 impl Display for Request {
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(
             f,
-            "{}({}), {}({}), ItemId({}) x{} @{} [{}]",
+            "{}({}) => {}({}) : ItemId({}) x{} @{} [{}]",
             self.seller_shop_name.0,
             self.seller_shop_id,
             self.buyer_shop_name.0,
             self.buyer_shop_id,
             self.item_id.0,
             self.item_count.0,
-            self.order_price.0,
-            self.traded_at
+            self.order_price,
+            self.traded_at()
         )
     }
 }
