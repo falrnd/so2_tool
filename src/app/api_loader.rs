@@ -2,6 +2,9 @@ use std::error::Error;
 use std::fs::File;
 use std::io::{BufReader, Write};
 use std::path::PathBuf;
+use std::time::SystemTime;
+
+use error::CacheLoadError;
 
 use crate::api::schema::Schema;
 use crate::app::cache::{Cacheable, DEFAULT_CACHE_ROOT};
@@ -9,7 +12,6 @@ use crate::app::cache::{Cacheable, DEFAULT_CACHE_ROOT};
 pub struct APILoader<S: Schema> {
     pub schema: S,
     pub cache_root: PathBuf,
-    pub allow_cache_expired: bool,
 }
 
 impl<S> APILoader<S>
@@ -20,7 +22,6 @@ where
         Self {
             schema,
             cache_root: DEFAULT_CACHE_ROOT.to_path_buf(),
-            allow_cache_expired: false,
         }
     }
 
@@ -30,11 +31,6 @@ where
 
     pub fn set_cache_root(&mut self, cache_root: PathBuf) -> &mut Self {
         self.cache_root = cache_root;
-        self
-    }
-
-    pub fn allow_cache_expired(&mut self, y: bool) -> &mut Self {
-        self.allow_cache_expired = y;
         self
     }
 
@@ -51,27 +47,28 @@ where
         reqwest::get(endpoint).await
     }
 
-    pub fn load_cache(&self) -> Result<S::Response, Box<dyn Error>>
+    pub fn load_cache(&self) -> Result<S::Response, CacheLoadError>
     where
         S: Cacheable,
     {
+        use CacheLoadError::*;
         println!("Load cache: {:?}", self.cache_file_path());
 
-        let cache_file_path = self.cache_file_path();
-        let file = File::open(&cache_file_path)?;
-        let time_stamp;
+        let path = self.cache_file_path();
 
-        if self.allow_cache_expired || {
-            time_stamp = file.metadata()?.modified()?;
-            time_stamp.elapsed()? < self.schema.min_interval()
-        } {
-            Ok(serde_json::from_reader(BufReader::new(file))?)
+        let file = File::open(&path).map_err(|e| FileNotFound(e.into()))?;
+        let time_stamp = get_timestamp(&file).map_err(|e| FileNotFound(e.into()))?;
+
+        let cache_living = (time_stamp.elapsed()).is_ok_and(|t| t < self.schema.min_interval());
+        if cache_living {
+            serde_json::from_reader(BufReader::new(file))
+                .map_err(|e| CacheLoadError::ParseFailed(e.into()))
         } else {
-            Err(Box::new(error::CacheExpired::new(
-                cache_file_path,
-                time_stamp,
-                self.schema.min_interval(),
-            )))
+            Err(CacheExpired {
+                path,
+                updated: time_stamp,
+                interval: self.schema.min_interval(),
+            })
         }
     }
 
@@ -90,8 +87,13 @@ where
     where
         S: Cacheable,
     {
-        if let Ok(v) = self.load_cache() {
-            return Ok(v);
+        match self.load_cache() {
+            Ok(response) => return Ok(response),
+            Err(e) => {
+                if let CacheLoadError::ParseFailed(_) = e {
+                    return Err(Box::new(e));
+                }
+            }
         }
 
         let api_call = self.call_api().await?.bytes().await?;
@@ -102,6 +104,10 @@ where
     }
 }
 
+fn get_timestamp(file: &File) -> Result<SystemTime, std::io::Error> {
+    file.metadata()?.modified()
+}
+
 pub mod error {
     pub use super::*;
 
@@ -109,40 +115,43 @@ pub mod error {
     use std::time::{Duration, SystemTime};
 
     #[derive(Debug)]
-    pub struct CacheExpired {
-        pub file: PathBuf,
-        pub updated: SystemTime,
-        pub interval: Duration,
+    pub enum CacheLoadError {
+        FileNotFound(Box<dyn std::error::Error>),
+        ParseFailed(Box<dyn std::error::Error>),
+        CacheExpired {
+            path: PathBuf,
+            updated: SystemTime,
+            interval: Duration,
+        },
     }
 
-    impl CacheExpired {
-        pub fn new(file: PathBuf, updated: SystemTime, interval: Duration) -> Self {
-            Self {
-                file,
-                updated,
-                interval,
+    impl Display for CacheLoadError {
+        fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+            match self {
+                CacheLoadError::FileNotFound(e) => write!(f, "File not found: {}", e),
+                CacheLoadError::ParseFailed(e) => write!(f, "Parse failed: {}", e),
+                CacheLoadError::CacheExpired {
+                    path,
+                    updated,
+                    interval,
+                } => {
+                    write!(
+                        f,
+                        "Cache expired: {:?} ({:?} + {:?})",
+                        path, updated, interval
+                    )
+                }
             }
         }
-
-        pub fn expired_at(&self) -> SystemTime {
-            self.updated + self.interval
-        }
     }
 
-    impl Display for CacheExpired {
-        fn fmt(&self, f: &mut Formatter) -> Result {
-            write!(
-                f,
-                "Cache file {:?} expired at {:?}",
-                self.file,
-                self.expired_at()
-            )
-        }
-    }
-
-    impl Error for CacheExpired {
+    impl Error for CacheLoadError {
         fn source(&self) -> Option<&(dyn Error + 'static)> {
-            None
+            match self {
+                CacheLoadError::FileNotFound(e) => Some(&**e),
+                CacheLoadError::ParseFailed(e) => Some(&**e),
+                CacheLoadError::CacheExpired { .. } => None,
+            }
         }
     }
 }
