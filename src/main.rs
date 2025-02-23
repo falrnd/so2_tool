@@ -86,7 +86,7 @@ impl ItemsLabel {
                             Self::to_display(APILoader::new(People).get().await.map(|v| v.0))
                         }
                         LoadTarget::RequestReport => {
-                            let instant = chrono::Local::now();
+                            let instant = chrono::Local::now() - chrono::Duration::minutes(11);
                             let date = instant.date_naive();
                             let hour = instant.hour() as u8;
                             Self::to_display(
