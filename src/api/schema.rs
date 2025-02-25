@@ -12,7 +12,7 @@ pub trait Schema {
 
     fn endpoint(&self) -> Url;
 
-    fn min_interval(&self) -> Duration {
+    fn min_interval() -> Duration {
         DEFAULT_INTERVAL
     }
 
@@ -116,19 +116,19 @@ impl_schema! {
         ORIGIN.join(&format!("json/ranking/{yyyy:04}-{mm:02}-{dd:02}/{section}.json")).unwrap()
     }
     Sale => _UNIMPLEMENTED { ORIGIN.join("json/sale/all.json").unwrap() } {
-        fn min_interval(&self) -> Duration {
+        fn min_interval() -> Duration {
             Duration::from_secs(600)
         }
     }
     Request => _UNIMPLEMENTED { ORIGIN.join("json/request/all.json").unwrap() } {
-        fn min_interval(&self) -> Duration {
+        fn min_interval() -> Duration {
             Duration::from_secs(600)
         }
     }
     ShopSummary => shop_summary::ShopSummary { ORIGIN.join("json/shop/summary.json").unwrap() }
     Shop => _UNIMPLEMENTED { ORIGIN.join("json/shop/all.json").unwrap() }
     People => people::Response { ORIGIN.join("json/people/all.json").unwrap() } {
-        fn min_interval(&self) -> Duration {
+        fn min_interval() -> Duration {
             Duration::from_secs(600)
         }
     }

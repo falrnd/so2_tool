@@ -11,6 +11,8 @@ use so2_tool::api::schema::{
     AreaSummary, OfficialItem, People, RecipeItem, RequestReport, ShopSummary,
 };
 use so2_tool::app::api_loader::APILoader;
+use so2_tool::app::cache::DEFAULT_CACHE_ROOT;
+use so2_tool::app::delete_expired_cache;
 
 pub fn main() -> iced::Result {
     iced::application(
@@ -51,6 +53,7 @@ enum Message {
     ThemeChanged(Theme),
     Load(LoadTarget),
     Loaded(String),
+    DeleteCache,
 }
 
 impl ItemsLabel {
@@ -112,6 +115,10 @@ impl ItemsLabel {
                 self.theme = theme;
                 Task::none()
             }
+            Message::DeleteCache => {
+                delete_expired_cache::delete(&DEFAULT_CACHE_ROOT).unwrap();
+                Task::none()
+            }
         }
     }
 
@@ -120,15 +127,18 @@ impl ItemsLabel {
 
         column![
             row![
+                button("delete cache").on_press(Message::DeleteCache),
+                container(self.theme_selector_view()).align_right(Length::Fill)
+            ]
+            .width(Length::Fill),
+            row![
                 load_button("item(official)", LoadTarget::OfficialItem),
                 load_button("item(recipe)", LoadTarget::RecipeItem),
                 load_button("shop summary", LoadTarget::ShopSummary),
                 load_button("people", LoadTarget::People),
                 load_button("[wip]requests", LoadTarget::RequestReport),
                 load_button("area summary", LoadTarget::AreaSummary),
-                container(self.theme_selector_view()).align_right(Length::Fill)
             ]
-            .width(Length::Fill)
             .spacing(5),
             self.scrollable_text_view(&self.display),
         ]

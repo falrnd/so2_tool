@@ -60,7 +60,7 @@ where
         let file = File::open(&path).map_err(|e| FileNotFound(e.into()))?;
         let time_stamp = get_timestamp(&file).map_err(|e| FileNotFound(e.into()))?;
 
-        let cache_living = (time_stamp.elapsed()).is_ok_and(|t| t < self.schema.min_interval());
+        let cache_living = (time_stamp.elapsed()).is_ok_and(|t| t < S::min_interval());
         if cache_living {
             serde_json::from_reader(BufReader::new(file))
                 .map_err(|e| CacheLoadError::ParseFailed(e.into()))
@@ -68,7 +68,7 @@ where
             Err(CacheExpired {
                 path,
                 updated: time_stamp,
-                interval: self.schema.min_interval(),
+                interval: S::min_interval(),
             })
         }
     }
