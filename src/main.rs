@@ -126,21 +126,29 @@ impl ItemsLabel {
         let load_button = |label, target| button(label).on_press(Message::Load(target));
 
         column![
-            row![
-                button("delete cache").on_press(Message::DeleteCache),
-                container(self.theme_selector_view()).align_right(Length::Fill)
-            ]
+            container(
+                row![
+                    button("delete cache").on_press(Message::DeleteCache),
+                    container(self.theme_selector_view())
+                ]
+                .spacing(5)
+            )
+            .align_y(Vertical::Center)
+            .align_right(Length::Fill)
             .width(Length::Fill),
             row![
-                load_button("item(official)", LoadTarget::OfficialItem),
-                load_button("item(recipe)", LoadTarget::RecipeItem),
-                load_button("shop summary", LoadTarget::ShopSummary),
-                load_button("people", LoadTarget::People),
-                load_button("[wip]requests", LoadTarget::RequestReport),
-                load_button("area summary", LoadTarget::AreaSummary),
+                column![
+                    load_button("item(official)", LoadTarget::OfficialItem),
+                    load_button("item(recipe)", LoadTarget::RecipeItem),
+                    load_button("shop summary", LoadTarget::ShopSummary),
+                    load_button("people", LoadTarget::People),
+                    load_button("[wip]requests", LoadTarget::RequestReport),
+                    load_button("area summary", LoadTarget::AreaSummary),
+                ]
+                .spacing(5),
+                self.scrollable_text_view(&self.display),
             ]
-            .spacing(5),
-            self.scrollable_text_view(&self.display),
+            .spacing(5)
         ]
         .spacing(10)
         .padding(20)
@@ -152,9 +160,7 @@ impl ItemsLabel {
     }
 
     fn theme_selector_view(&self) -> Row<Message> {
-        let title = text("ColorTheme: ")
-            .shaping(Shaping::Advanced)
-            .width(Length::Shrink);
+        let title = text("ColorTheme: ").shaping(Shaping::Advanced);
         let list = pick_list(Theme::ALL, Some(&self.theme), Message::ThemeChanged);
 
         row![title, list].align_y(Vertical::Center)
