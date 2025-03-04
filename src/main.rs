@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 
 use chrono::Timelike;
 use iced::alignment::Vertical;
@@ -8,7 +8,8 @@ use iced::widget::{Row, button, column, container, pick_list, row, scrollable, t
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
 use so2_tool::api::schema::{
-    AreaSummary, OfficialItem, People, RecipeItem, RequestReport, ShopSummary,
+    AreaSummary, OfficialItem, People, RankingAllMonthly, RankingSectionDaily,
+    RankingSectionMonthly, RecipeItem, RequestReport, Schema, ShopSummary,
 };
 use so2_tool::app::api_loader::APILoader;
 use so2_tool::app::cache::DEFAULT_CACHE_ROOT;
@@ -46,6 +47,14 @@ enum LoadTarget {
     People,
     RequestReport,
     AreaSummary,
+    Ranking(Ranking),
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Ranking {
+    All,
+    Section,
+    Daily,
 }
 
 #[derive(Debug, Clone)]
@@ -63,6 +72,14 @@ impl ItemsLabel {
         Iter::Item: Display,
     {
         v.map_or_else(|e| format!("error: {e}"), |v| v.into_iter().join("\n"))
+    }
+
+    fn to_debug<Iter>(v: Result<Iter, Box<dyn Error>>) -> String
+    where
+        Iter: IntoIterator,
+        Iter::Item: Debug,
+    {
+        Self::to_display(v.map(|v| v.into_iter().map(|v| format!("{v:?}"))))
     }
 
     fn update(&mut self, message: Message) -> Task<Message> {
@@ -88,8 +105,40 @@ impl ItemsLabel {
                         LoadTarget::People => {
                             Self::to_display(APILoader::new(People).get().await.map(|v| v.0))
                         }
+                        LoadTarget::Ranking(r) => {
+                            let instant = chrono::Local::now() - RankingAllMonthly::min_interval();
+
+                            match r {
+                                Ranking::All => Self::to_debug(
+                                    APILoader::new(RankingAllMonthly {
+                                        ym: instant.date_naive(),
+                                    })
+                                    .get()
+                                    .await
+                                    .map(|v| v.0),
+                                ),
+                                Ranking::Section => Self::to_debug(
+                                    APILoader::new(RankingSectionMonthly {
+                                        ym: instant.date_naive(),
+                                        section: "exp_62".to_string(),
+                                    })
+                                    .get()
+                                    .await
+                                    .map(|v| v.0),
+                                ),
+                                Ranking::Daily => Self::to_debug(
+                                    APILoader::new(RankingSectionDaily {
+                                        date: instant.date_naive(),
+                                        section: "exp_62".to_string(),
+                                    })
+                                    .get()
+                                    .await
+                                    .map(|v| v.0),
+                                ),
+                            }
+                        }
                         LoadTarget::RequestReport => {
-                            let instant = chrono::Local::now() - chrono::Duration::minutes(11);
+                            let instant = chrono::Local::now() - RequestReport::min_interval();
                             let date = instant.date_naive();
                             let hour = instant.hour() as u8;
                             Self::to_display(
@@ -142,7 +191,10 @@ impl ItemsLabel {
                     load_button("item(recipe)", LoadTarget::RecipeItem),
                     load_button("shop summary", LoadTarget::ShopSummary),
                     load_button("people", LoadTarget::People),
-                    load_button("[wip]requests", LoadTarget::RequestReport),
+                    load_button("ranking(all)", LoadTarget::Ranking(Ranking::All)),
+                    load_button("ranking(section)", LoadTarget::Ranking(Ranking::Section)),
+                    load_button("ranking(daily)", LoadTarget::Ranking(Ranking::Daily)),
+                    load_button("[wip]request report", LoadTarget::RequestReport),
                     load_button("area summary", LoadTarget::AreaSummary),
                 ]
                 .spacing(5),

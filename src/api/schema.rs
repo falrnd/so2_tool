@@ -50,17 +50,17 @@ pub struct Area;
 pub struct Report(pub NaiveDate);
 ///ランキング/月間全部門トップ3
 pub struct RankingAllMonthly {
-    ym: NaiveDate,
+    pub ym: NaiveDate,
 }
 ///ランキング/月間部門別トップ1000
 pub struct RankingSectionMonthly {
-    ym: NaiveDate,
-    section: String,
+    pub ym: NaiveDate,
+    pub section: String,
 }
 ///ランキング/デイリートップ1000
 pub struct RankingSectionDaily {
-    date: NaiveDate,
-    section: String,
+    pub date: NaiveDate,
+    pub section: String,
 }
 ///販売品
 pub struct Sale;
@@ -97,18 +97,18 @@ impl_schema! {
         let dd = self.0.day();
         ORIGIN.join(&format!("json/report/buy{yyyy:04}{mm:02}{dd:02}")).unwrap()
     }
-    RankingAllMonthly => _UNIMPLEMENTED { |self|
+    RankingAllMonthly => ranking::AllMonthly { |self|
         let yyyy = self.ym.year();
         let mm = self.ym.month();
-        ORIGIN.join(&format!("json/ranking/{yyyy:04}-{mm:02}/all.json")).unwrap()
+        ORIGIN.join(&format!("json/ranking/{yyyy:04}-{mm:02}/summary.json")).unwrap()
     }
-    RankingSectionMonthly => _UNIMPLEMENTED { |self|
+    RankingSectionMonthly => ranking::SectionMonthly { |self|
         let yyyy = self.ym.year();
         let mm = self.ym.month();
         let section = &self.section;
         ORIGIN.join(&format!("json/ranking/{yyyy:04}-{mm:02}/{section}.json")).unwrap()
     }
-    RankingSectionDaily => _UNIMPLEMENTED { |self|
+    RankingSectionDaily => ranking::Daily { |self|
         let yyyy = self.date.year();
         let mm = self.date.month();
         let dd = self.date.day();
