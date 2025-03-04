@@ -6,7 +6,7 @@ use serde::Deserialize;
 use super::{item, shop};
 
 #[derive(Debug, Deserialize)]
-pub struct RequestReport(pub Vec<Request>);
+pub struct Response(pub Vec<RequestReport>);
 
 #[derive(Debug, Deserialize)]
 pub struct Amount(pub u32);
@@ -15,7 +15,7 @@ pub struct Amount(pub u32);
 pub struct Price(pub u32);
 
 #[derive(Debug, Deserialize)]
-pub struct Request {
+pub struct RequestReport {
     // 配列で渡ってくるので順番を変えないように
     // 名前は変えてもいい
     pub seller_shop_id: shop::Id,
@@ -28,7 +28,7 @@ pub struct Request {
     pub timestamp: i64,
 }
 
-impl Request {
+impl RequestReport {
     pub fn traded_at(&self) -> NaiveDateTime {
         DateTime::from_timestamp(self.timestamp, 0)
             .unwrap()
@@ -36,7 +36,7 @@ impl Request {
     }
 }
 
-impl Display for Request {
+impl Display for RequestReport {
     fn fmt(&self, f: &mut Formatter) -> Result {
         write!(
             f,
