@@ -9,7 +9,7 @@ use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
 use so2_tool::api::schema::{
     AreaSummary, OfficialItem, People, RankingAllMonthly, RankingSectionDaily,
-    RankingSectionMonthly, RecipeItem, RequestReport, Schema, ShopSummary,
+    RankingSectionMonthly, RecipeItem, RequestReport, Sale, Schema, ShopSummary,
 };
 use so2_tool::app::api_loader::APILoader;
 use so2_tool::app::cache::DEFAULT_CACHE_ROOT;
@@ -43,11 +43,12 @@ impl Default for ItemsLabel {
 enum LoadTarget {
     OfficialItem,
     RecipeItem,
+    Ranking(Ranking),
     ShopSummary,
+    Sale,
     People,
     RequestReport,
     AreaSummary,
-    Ranking(Ranking),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -71,7 +72,8 @@ impl ItemsLabel {
         Iter: IntoIterator,
         Iter::Item: Display,
     {
-        v.map_or_else(|e| format!("error: {e}"), |v| v.into_iter().join("\n"))
+        v.inspect_err(|e| eprintln!("{e}"))
+            .map_or_else(|e| format!("error: {e}"), |v| v.into_iter().join("\n"))
     }
 
     fn to_debug<Iter>(v: Result<Iter, Box<dyn Error>>) -> String
@@ -101,9 +103,6 @@ impl ItemsLabel {
                         ),
                         LoadTarget::ShopSummary => {
                             Self::to_display(APILoader::new(ShopSummary).get().await.map(|v| [v]))
-                        }
-                        LoadTarget::People => {
-                            Self::to_display(APILoader::new(People).get().await.map(|v| v.0))
                         }
                         LoadTarget::Ranking(r) => {
                             let instant = chrono::Local::now() - RankingAllMonthly::min_interval();
@@ -137,6 +136,11 @@ impl ItemsLabel {
                                 ),
                             }
                         }
+                        LoadTarget::Sale => Self::to_debug(APILoader::new(Sale).get().await),
+                        LoadTarget::People => {
+                            Self::to_display(APILoader::new(People).get().await.map(|v| v.0))
+                        }
+
                         LoadTarget::RequestReport => {
                             let instant = chrono::Local::now() - RequestReport::min_interval();
                             let date = instant.date_naive();
@@ -194,6 +198,7 @@ impl ItemsLabel {
                     load_button("ranking(all)", LoadTarget::Ranking(Ranking::All)),
                     load_button("ranking(section)", LoadTarget::Ranking(Ranking::Section)),
                     load_button("ranking(daily)", LoadTarget::Ranking(Ranking::Daily)),
+                    load_button("sale", LoadTarget::Sale),
                     load_button("[wip]request report", LoadTarget::RequestReport),
                     load_button("area summary", LoadTarget::AreaSummary),
                 ]

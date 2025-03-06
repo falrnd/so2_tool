@@ -4,5 +4,6 @@ pub mod item;
 pub mod people;
 pub mod ranking;
 pub mod request_report;
+pub mod sale;
 pub mod shop;
 pub mod shop_summary;

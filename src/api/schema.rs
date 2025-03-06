@@ -115,7 +115,7 @@ impl_schema! {
         let section = &self.section;
         ORIGIN.join(&format!("json/ranking/{yyyy:04}-{mm:02}-{dd:02}/{section}.json")).unwrap()
     }
-    Sale => _UNIMPLEMENTED { ORIGIN.join("json/sale/all.json").unwrap() } {
+    Sale => sale::Response { ORIGIN.join("json/sale/all.json").unwrap() } {
         fn min_interval() -> Duration {
             Duration::from_secs(600)
         }

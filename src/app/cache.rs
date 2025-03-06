@@ -5,7 +5,7 @@ use std::{
 
 use crate::api::schema::{
     AreaSummary, OfficialItem, People, RankingAllMonthly, RankingSectionDaily,
-    RankingSectionMonthly, RecipeItem, RequestReport, Schema, ShopSummary,
+    RankingSectionMonthly, RecipeItem, RequestReport, Sale, Schema, ShopSummary,
 };
 use chrono::Datelike;
 
@@ -87,6 +87,12 @@ impl Cacheable for RankingSectionDaily {
         let day = self.date.day();
         let section = &self.section;
         format!("ranking_daily_{section}_{year:04}-{month:02}-{day:02}.json")
+    }
+}
+
+impl Cacheable for Sale {
+    fn file_name(&self) -> impl AsRef<Path> {
+        "sale.json"
     }
 }
 
