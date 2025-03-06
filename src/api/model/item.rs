@@ -1,7 +1,7 @@
 use std::{collections::HashMap, num::NonZeroU32};
 
 use itertools::Itertools;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
 pub struct Response {
@@ -54,7 +54,7 @@ pub struct Category(pub String);
 #[derive(Debug, Clone, Deserialize)]
 pub struct Class(pub String);
 
-#[derive(Debug, Clone, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Id(pub NonZeroU32);
 
 impl Id {

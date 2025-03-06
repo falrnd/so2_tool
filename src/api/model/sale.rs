@@ -1,10 +1,10 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use super::{item, shop};
 
 pub type Response = Vec<Sale>;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 ///販売品
 pub struct Sale {
     /// 販売通し番号
@@ -28,12 +28,6 @@ pub struct Sale {
     /// 販売在庫数
     pub unit: i64,
     /// まとめ売り
-    bundle_sale: u8,
-}
-
-impl Sale {
-    /// まとめ売り
-    pub fn is_bundle_sale(&self) -> bool {
-        self.bundle_sale == 1
-    }
+    #[serde(with = "super::serde_bool_int")]
+    pub bundle_sale: bool,
 }
