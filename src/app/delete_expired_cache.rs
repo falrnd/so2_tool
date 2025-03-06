@@ -6,10 +6,11 @@ use super::cache::Cacheable;
 
 pub fn delete(cache_dir: &Path) -> std::io::Result<()> {
     let helper = Helper::new(cache_dir);
+
     // helper.delete::<Report>();
-    // helper.delete::<RankingAllMonthly>();
-    // helper.delete::<RankingSectionMonthly>();
-    // helper.delete::<RankingSectionDaily>();
+    helper.delete::<RankingAllMonthly>()?;
+    helper.delete::<RankingSectionMonthly>()?;
+    helper.delete::<RankingSectionDaily>()?;
     helper.delete::<RequestReport>()?;
 
     Ok(())
