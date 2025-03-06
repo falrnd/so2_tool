@@ -120,7 +120,7 @@ impl_schema! {
             Duration::from_secs(600)
         }
     }
-    Request => _UNIMPLEMENTED { ORIGIN.join("json/request/all.json").unwrap() } {
+    Request => request::Response { ORIGIN.join("json/request/all.json").unwrap() } {
         fn min_interval() -> Duration {
             Duration::from_secs(600)
         }

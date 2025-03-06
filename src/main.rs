@@ -9,7 +9,7 @@ use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
 use so2_tool::api::schema::{
     Area, AreaSummary, OfficialItem, People, RankingAllMonthly, RankingSectionDaily,
-    RankingSectionMonthly, RecipeItem, RequestReport, Sale, Schema, ShopSummary,
+    RankingSectionMonthly, RecipeItem, Request, RequestReport, Sale, Schema, ShopSummary,
 };
 use so2_tool::app::api_loader::APILoader;
 use so2_tool::app::cache::DEFAULT_CACHE_ROOT;
@@ -47,6 +47,7 @@ enum LoadTarget {
     Ranking(Ranking),
     ShopSummary,
     Sale,
+    Request,
     People,
     RequestReport,
     AreaSummary,
@@ -141,6 +142,7 @@ impl ItemsLabel {
                             }
                         }
                         LoadTarget::Sale => Self::to_debug(APILoader::new(Sale).get().await),
+                        LoadTarget::Request => Self::to_debug(APILoader::new(Request).get().await),
                         LoadTarget::People => {
                             Self::to_display(APILoader::new(People).get().await.map(|v| v.0))
                         }
@@ -204,6 +206,7 @@ impl ItemsLabel {
                     load_button("ranking(section)", LoadTarget::Ranking(Ranking::Section)),
                     load_button("ranking(daily)", LoadTarget::Ranking(Ranking::Daily)),
                     load_button("sale", LoadTarget::Sale),
+                    load_button("request", LoadTarget::Request),
                     load_button("[wip]request report", LoadTarget::RequestReport),
                     load_button("area summary", LoadTarget::AreaSummary),
                 ]

@@ -3,10 +3,7 @@ use std::{
     sync::LazyLock,
 };
 
-use crate::api::schema::{
-    Area, AreaSummary, OfficialItem, People, RankingAllMonthly, RankingSectionDaily,
-    RankingSectionMonthly, RecipeItem, RequestReport, Sale, Schema, ShopSummary,
-};
+use crate::api::schema::*;
 use chrono::Datelike;
 
 pub static DEFAULT_CACHE_ROOT: LazyLock<&Path> = LazyLock::new(|| Path::new(r"data\api\cache"));
@@ -99,6 +96,12 @@ impl Cacheable for RankingSectionDaily {
 impl Cacheable for Sale {
     fn file_name(&self) -> impl AsRef<Path> {
         "sale.json"
+    }
+}
+
+impl Cacheable for Request {
+    fn file_name(&self) -> impl AsRef<Path> {
+        "request.json"
     }
 }
 
