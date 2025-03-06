@@ -8,7 +8,7 @@ use iced::widget::{Row, button, column, container, pick_list, row, scrollable, t
 use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
 use so2_tool::api::schema::{
-    AreaSummary, OfficialItem, People, RankingAllMonthly, RankingSectionDaily,
+    Area, AreaSummary, OfficialItem, People, RankingAllMonthly, RankingSectionDaily,
     RankingSectionMonthly, RecipeItem, RequestReport, Sale, Schema, ShopSummary,
 };
 use so2_tool::app::api_loader::APILoader;
@@ -43,6 +43,7 @@ impl Default for ItemsLabel {
 enum LoadTarget {
     OfficialItem,
     RecipeItem,
+    Area,
     Ranking(Ranking),
     ShopSummary,
     Sale,
@@ -100,6 +101,9 @@ impl ItemsLabel {
                                 .get()
                                 .await
                                 .map(|v| v.0.into_values()),
+                        ),
+                        LoadTarget::Area => Self::to_debug(
+                            APILoader::new(Area).get().await.map(|v| v.into_values()),
                         ),
                         LoadTarget::ShopSummary => {
                             Self::to_display(APILoader::new(ShopSummary).get().await.map(|v| [v]))
@@ -193,6 +197,7 @@ impl ItemsLabel {
                 column![
                     load_button("item(official)", LoadTarget::OfficialItem),
                     load_button("item(recipe)", LoadTarget::RecipeItem),
+                    load_button("area", LoadTarget::Area),
                     load_button("shop summary", LoadTarget::ShopSummary),
                     load_button("people", LoadTarget::People),
                     load_button("ranking(all)", LoadTarget::Ranking(Ranking::All)),

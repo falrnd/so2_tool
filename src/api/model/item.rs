@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, num::NonZeroU32};
 
 use itertools::Itertools;
 use serde::Deserialize;
@@ -55,11 +55,11 @@ pub struct Category(pub String);
 pub struct Class(pub String);
 
 #[derive(Debug, Clone, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Id(pub u32);
+pub struct Id(pub NonZeroU32);
 
 impl Id {
     pub fn is_official(&self) -> bool {
-        self.0 < 2000000
+        self.0.get() < 2000000
     }
 
     pub fn is_recipe(&self) -> bool {
@@ -108,4 +108,12 @@ impl Response {
             .map(|item| (item.item_id.clone(), item.clone()))
             .collect()
     }
+}
+
+pub fn deserialize_optional_id<'de, D>(deserializer: D) -> Result<Option<Id>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let v = Option::<u32>::deserialize(deserializer)?;
+    Ok(v.and_then(NonZeroU32::new).map(Id))
 }

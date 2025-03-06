@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::api::schema::{
-    AreaSummary, OfficialItem, People, RankingAllMonthly, RankingSectionDaily,
+    Area, AreaSummary, OfficialItem, People, RankingAllMonthly, RankingSectionDaily,
     RankingSectionMonthly, RecipeItem, RequestReport, Sale, Schema, ShopSummary,
 };
 use chrono::Datelike;
@@ -36,6 +36,12 @@ impl Cacheable for OfficialItem {
 impl Cacheable for RecipeItem {
     fn file_name(&self) -> impl AsRef<Path> {
         "recipe_item.json"
+    }
+}
+
+impl Cacheable for Area {
+    fn file_name(&self) -> impl AsRef<Path> {
+        "area.json"
     }
 }
 

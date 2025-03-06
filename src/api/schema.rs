@@ -90,7 +90,7 @@ pub struct _UNIMPLEMENTED;
 impl_schema! {
     OfficialItem => item::Official { ORIGIN.join("master/item.json").unwrap() }
     RecipeItem => item::Recipe { ORIGIN.join("json/master/recipe_item.json").unwrap() }
-    Area => _UNIMPLEMENTED { ORIGIN.join("master/area.json").unwrap() }
+    Area => area::Response { ORIGIN.join("master/area.json").unwrap() }
     Report => _UNIMPLEMENTED { |self|
         let yyyy = self.0.year();
         let mm = self.0.month();
