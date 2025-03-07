@@ -9,7 +9,8 @@ use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
 use so2_tool::api::schema::{
     Area, AreaSummary, OfficialItem, People, RankingAllMonthly, RankingSectionDaily,
-    RankingSectionMonthly, RecipeItem, Request, RequestReport, Sale, Schema, Shop, ShopSummary,
+    RankingSectionMonthly, RecipeItem, Report, Request, RequestReport, Sale, Schema, Shop,
+    ShopSummary,
 };
 use so2_tool::app::api_loader::APILoader;
 use so2_tool::app::cache::DEFAULT_CACHE_ROOT;
@@ -108,7 +109,15 @@ impl ItemsLabel {
                         LoadTarget::Area => Self::to_debug(
                             APILoader::new(Area).get().await.map(|v| v.into_values()),
                         ),
-                        LoadTarget::Report => unimplemented!(),
+                        LoadTarget::Report => {
+                            let instant = chrono::Local::now() - RankingAllMonthly::min_interval();
+                            Self::to_debug(
+                                APILoader::new(Report(instant.date_naive().pred_opt().unwrap()))
+                                    .get()
+                                    .await
+                                    .map(|v| [v]),
+                            )
+                        }
                         LoadTarget::Ranking(r) => {
                             let instant = chrono::Local::now() - RankingAllMonthly::min_interval();
 
@@ -204,7 +213,7 @@ impl ItemsLabel {
                     load_button("item(official)", LoadTarget::OfficialItem),
                     load_button("item(recipe)", LoadTarget::RecipeItem),
                     load_button("area", LoadTarget::Area),
-                    //report
+                    load_button("report", LoadTarget::Report),
                     load_button("ranking(all)", LoadTarget::Ranking(Ranking::All)),
                     load_button("ranking(section)", LoadTarget::Ranking(Ranking::Section)),
                     load_button("ranking(daily)", LoadTarget::Ranking(Ranking::Daily)),

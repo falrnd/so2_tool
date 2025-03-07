@@ -42,6 +42,19 @@ impl Cacheable for Area {
     }
 }
 
+impl Cacheable for Report {
+    fn file_dir() -> Option<impl AsRef<Path>> {
+        Some("report")
+    }
+
+    fn file_name(&self) -> impl AsRef<Path> {
+        let yyyy = self.0.year();
+        let mm = self.0.month();
+        let dd = self.0.day();
+        format!("report_{yyyy:04}-{mm:02}-{dd:02}.json")
+    }
+}
+
 impl Cacheable for ShopSummary {
     fn file_name(&self) -> impl AsRef<Path> {
         "shop_summary.json"

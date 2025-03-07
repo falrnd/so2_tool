@@ -84,18 +84,15 @@ pub struct AreaSummary;
 
 static ORIGIN: LazyLock<Url> = LazyLock::new(|| Url::parse("https://so2-api.mutoys.com").unwrap());
 
-#[derive(serde::Deserialize)]
-pub struct _UNIMPLEMENTED;
-
 impl_schema! {
     OfficialItem => item::Official { ORIGIN.join("master/item.json").unwrap() }
     RecipeItem => item::Recipe { ORIGIN.join("json/master/recipe_item.json").unwrap() }
     Area => area::Response { ORIGIN.join("master/area.json").unwrap() }
-    Report => _UNIMPLEMENTED { |self|
+    Report => report::Response { |self|
         let yyyy = self.0.year();
         let mm = self.0.month();
         let dd = self.0.day();
-        ORIGIN.join(&format!("json/report/buy{yyyy:04}{mm:02}{dd:02}")).unwrap()
+        ORIGIN.join(&format!("json/report/buy{yyyy:04}{mm:02}{dd:02}.json")).unwrap()
     }
     RankingAllMonthly => ranking::AllMonthly { |self|
         let yyyy = self.ym.year();
