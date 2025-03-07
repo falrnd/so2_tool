@@ -126,7 +126,7 @@ impl_schema! {
         }
     }
     ShopSummary => shop_summary::ShopSummary { ORIGIN.join("json/shop/summary.json").unwrap() }
-    Shop => _UNIMPLEMENTED { ORIGIN.join("json/shop/all.json").unwrap() }
+    Shop => shop::Response { ORIGIN.join("json/shop/all.json").unwrap() }
     People => people::Response { ORIGIN.join("json/people/all.json").unwrap() } {
         fn min_interval() -> Duration {
             Duration::from_secs(600)

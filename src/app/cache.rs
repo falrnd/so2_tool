@@ -48,6 +48,12 @@ impl Cacheable for ShopSummary {
     }
 }
 
+impl Cacheable for Shop {
+    fn file_name(&self) -> impl AsRef<Path> {
+        "shop.json"
+    }
+}
+
 impl Cacheable for People {
     fn file_name(&self) -> impl AsRef<Path> {
         "people.json"

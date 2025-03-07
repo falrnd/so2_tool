@@ -9,7 +9,7 @@ use iced::{Element, Length, Task, Theme};
 use itertools::Itertools;
 use so2_tool::api::schema::{
     Area, AreaSummary, OfficialItem, People, RankingAllMonthly, RankingSectionDaily,
-    RankingSectionMonthly, RecipeItem, Request, RequestReport, Sale, Schema, ShopSummary,
+    RankingSectionMonthly, RecipeItem, Request, RequestReport, Sale, Schema, Shop, ShopSummary,
 };
 use so2_tool::app::api_loader::APILoader;
 use so2_tool::app::cache::DEFAULT_CACHE_ROOT;
@@ -44,10 +44,12 @@ enum LoadTarget {
     OfficialItem,
     RecipeItem,
     Area,
+    Report,
     Ranking(Ranking),
-    ShopSummary,
     Sale,
     Request,
+    ShopSummary,
+    Shop,
     People,
     RequestReport,
     AreaSummary,
@@ -106,9 +108,7 @@ impl ItemsLabel {
                         LoadTarget::Area => Self::to_debug(
                             APILoader::new(Area).get().await.map(|v| v.into_values()),
                         ),
-                        LoadTarget::ShopSummary => {
-                            Self::to_display(APILoader::new(ShopSummary).get().await.map(|v| [v]))
-                        }
+                        LoadTarget::Report => unimplemented!(),
                         LoadTarget::Ranking(r) => {
                             let instant = chrono::Local::now() - RankingAllMonthly::min_interval();
 
@@ -143,6 +143,10 @@ impl ItemsLabel {
                         }
                         LoadTarget::Sale => Self::to_debug(APILoader::new(Sale).get().await),
                         LoadTarget::Request => Self::to_debug(APILoader::new(Request).get().await),
+                        LoadTarget::ShopSummary => {
+                            Self::to_display(APILoader::new(ShopSummary).get().await.map(|v| [v]))
+                        }
+                        LoadTarget::Shop => Self::to_debug(APILoader::new(Shop).get().await),
                         LoadTarget::People => {
                             Self::to_display(APILoader::new(People).get().await.map(|v| v.0))
                         }
@@ -200,14 +204,16 @@ impl ItemsLabel {
                     load_button("item(official)", LoadTarget::OfficialItem),
                     load_button("item(recipe)", LoadTarget::RecipeItem),
                     load_button("area", LoadTarget::Area),
-                    load_button("shop summary", LoadTarget::ShopSummary),
-                    load_button("people", LoadTarget::People),
+                    //report
                     load_button("ranking(all)", LoadTarget::Ranking(Ranking::All)),
                     load_button("ranking(section)", LoadTarget::Ranking(Ranking::Section)),
                     load_button("ranking(daily)", LoadTarget::Ranking(Ranking::Daily)),
                     load_button("sale", LoadTarget::Sale),
                     load_button("request", LoadTarget::Request),
-                    load_button("[wip]request report", LoadTarget::RequestReport),
+                    load_button("shop summary", LoadTarget::ShopSummary),
+                    load_button("shop", LoadTarget::Shop),
+                    load_button("people", LoadTarget::People),
+                    load_button("request report", LoadTarget::RequestReport),
                     load_button("area summary", LoadTarget::AreaSummary),
                 ]
                 .spacing(5),
