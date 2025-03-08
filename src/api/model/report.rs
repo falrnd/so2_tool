@@ -5,6 +5,9 @@ use serde::{Deserialize, Serialize};
 use super::{area, item};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+// Why doesn't this work?
+// #[serde(flatten)]
+// pub general: Report,
 pub struct Response {
     /// 住民の購入レポート
     pub system: ReportItem,
