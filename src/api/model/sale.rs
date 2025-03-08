@@ -1,9 +1,11 @@
 use serde::{Deserialize, Serialize};
+use serde_with::{BoolFromInt, serde_as};
 
 use super::{item, shop};
 
 pub type Response = Vec<Sale>;
 
+#[serde_as]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 ///販売品
 pub struct Sale {
@@ -28,6 +30,6 @@ pub struct Sale {
     /// 販売在庫数
     pub unit: i64,
     /// まとめ売り
-    #[serde(with = "super::serde_bool_int")]
+    #[serde_as(as = "BoolFromInt")]
     pub bundle_sale: bool,
 }
