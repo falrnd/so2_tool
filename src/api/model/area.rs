@@ -56,3 +56,45 @@ pub mod serde_id_opt {
         Ok(NonZeroU8::new(Deserialize::deserialize(deserializer)?).map(Id))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::Area;
+    use serde_json::{Result, json};
+
+    #[test]
+    fn deserialize_area() -> Result<()> {
+        let emerald = json!({
+            "area_id": 1,
+            "desc": [
+              "水の都。王国最大の商業都市。",
+              "知る人ぞ知る伝説の街です",
+              "大都会エメラルド。地上に星の灯る街。"
+            ],
+            "height": 50,
+            "icon": 174,
+            "name": "エメラルド街",
+            "pos_x": 130,
+            "pos_y": 360,
+            "width": 50
+        });
+
+        // icon item_id is 0
+        let opal = json!({
+            "area_id": 91,
+            "desc": [
+              "王国令:土地開発および他店への隣接を禁ず"
+            ],
+            "height": 50,
+            "icon": 0,
+            "name": "オパール街",
+            "pos_x": 600,
+            "pos_y": 800,
+            "width": 50
+        });
+
+        serde_json::from_value::<Area>(emerald)?;
+        serde_json::from_value::<Area>(opal)?;
+        Ok(())
+    }
+}
