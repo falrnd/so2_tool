@@ -1,27 +1,12 @@
 use std::collections::HashMap;
-use std::time::Duration;
 
 use itertools::Itertools;
 use serde::Deserialize;
 
-use crate::api::APICall;
-
-use super::{area, Schema};
-
-const FILE_NAME: &str = r"people.json";
-
-pub struct Quely {}
-
-impl Schema for Quely {
-    type Response = Response;
-
-    fn endpoint(&self) -> url::Url {
-        super::ORIGIN.join("json/people/all.json").unwrap()
-    }
-}
+use super::area;
 
 #[derive(Debug, Deserialize)]
-pub struct Response(Vec<People>);
+pub struct Response(pub Vec<People>);
 
 #[derive(Debug, Deserialize)]
 pub struct People {
@@ -62,19 +47,6 @@ pub struct TrendStatus(pub i8);
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct TrendMessage(pub String);
-
-impl Response {
-    pub async fn get() -> Result<Self, Box<dyn std::error::Error>> {
-        APICall::new(Quely {}.endpoint(), FILE_NAME)
-            .set_interval(Duration::from_secs(600))
-            .load_cache_or_call()
-            .await
-    }
-
-    pub fn values(&self) -> impl Iterator<Item = &People> {
-        self.0.iter()
-    }
-}
 
 impl std::fmt::Display for People {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
