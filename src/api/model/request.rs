@@ -17,7 +17,7 @@ pub struct Request {
     /// ショップ番号
     shop_id: shop::Id,
     /// ショップ名
-    shop_name: shop::Name,
+    shop_name: String,
     /// 商品ID
     item_id: item::Id,
     /// 買い取り済み数量

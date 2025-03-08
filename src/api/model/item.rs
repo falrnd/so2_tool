@@ -33,7 +33,7 @@ pub struct Item {
     pub class: Class,
     pub item_id: Id,
     pub limit: StackSize,
-    pub name: Name,
+    pub name: String,
     pub scale: Scale,
     pub sort: u32,
 }
@@ -71,14 +71,11 @@ impl Id {
 pub struct StackSize(pub u32);
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct Name(pub String);
-
-#[derive(Debug, Clone, Deserialize)]
 pub struct Scale(pub String);
 
 impl std::fmt::Display for Item {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{} ({}/{}) ", self.name.0, self.category.0, self.class.0)
+        write!(f, "{} ({}/{}) ", self.name, self.category.0, self.class.0)
     }
 }
 

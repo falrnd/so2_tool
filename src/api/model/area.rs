@@ -14,7 +14,7 @@ pub struct Area {
     /// 街ID
     pub area_id: Id,
     /// 街名
-    pub name: Name,
+    pub name: String,
     /// 街アピールコメント
     pub desc: Vec<String>,
     /// アピール商品ID
@@ -32,9 +32,6 @@ pub struct Area {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Id(pub NonZeroU8);
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct Name(pub String);
 
 pub mod serde_id_opt {
     use std::num::NonZeroU8;

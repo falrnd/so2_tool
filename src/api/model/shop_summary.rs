@@ -23,7 +23,7 @@ impl Display for ShopCount {
 #[derive(Debug, Clone, Deserialize)]
 pub struct AreaShopSummary {
     pub area_id: area::Id, // APIドキュメントだとstringになっているが?
-    pub name: area::Name,
+    pub name: String,
     pub count: ShopCount,
 }
 
@@ -40,6 +40,6 @@ impl Display for ShopSummary {
 
 impl Display for AreaShopSummary {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        write!(f, "{} ({})", self.name.0, self.count)
+        write!(f, "{} ({})", self.name, self.count)
     }
 }

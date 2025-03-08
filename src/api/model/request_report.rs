@@ -19,9 +19,9 @@ pub struct RequestReport {
     // 配列で渡ってくるので順番を変えないように
     // 名前は変えてもいい
     pub seller_shop_id: shop::Id,
-    pub seller_shop_name: shop::Name,
+    pub seller_shop_name: String,
     pub buyer_shop_id: shop::Id,
-    pub buyer_shop_name: shop::Name,
+    pub buyer_shop_name: String,
     pub item_id: item::Id,
     pub item_count: Amount,
     pub order_price: Price,
@@ -41,9 +41,9 @@ impl Display for RequestReport {
         write!(
             f,
             "{}({}) => {}({}) : ItemId({}) x{} @{} [{}]",
-            self.seller_shop_name.0,
+            self.seller_shop_name,
             self.seller_shop_id,
-            self.buyer_shop_name.0,
+            self.buyer_shop_name,
             self.buyer_shop_id,
             self.item_id.0,
             self.item_count.0,

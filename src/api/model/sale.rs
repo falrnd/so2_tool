@@ -22,7 +22,7 @@ pub struct Sale {
     /// ショップ番号
     pub shop_id: shop::Id,
     /// ショップ名
-    pub shop_name: shop::Name,
+    pub shop_name: String,
     /// 商品ID
     pub item_id: item::Id,
     /// 販売単価

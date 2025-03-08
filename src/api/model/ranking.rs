@@ -30,7 +30,7 @@ pub struct Info {
     pub user_id: Option<shop::UserId>,
     #[serde(default)]
     pub shop_id: Option<shop::Id>,
-    pub shop_name: shop::Name,
+    pub shop_name: String,
     pub area_id: area::Id,
     pub comment: String,
 }
@@ -45,7 +45,7 @@ pub struct DailyInfo {
     pub user_id: Option<shop::UserId>,
     #[serde(default)]
     pub shop_id: Option<shop::Id>,
-    pub shop_name: shop::Name,
+    pub shop_name: String,
     pub area_id: area::Id,
     pub comment: String,
 }

@@ -14,7 +14,7 @@ pub struct Shop {
     /// ショップ番号
     pub shop_id: Id,
     /// ショップ名
-    pub shop_name: Name,
+    pub shop_name: String,
     /// キャッチコピー
     #[serde(default)]
     pub comment: Option<String>,
@@ -59,9 +59,6 @@ pub struct JobId(pub u32);
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Level(pub u32);
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Name(pub String);
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct TitleClass {
