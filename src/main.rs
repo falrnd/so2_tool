@@ -110,29 +110,23 @@ impl ItemsLabel {
                             APILoader::new(Area).get().await.map(|v| v.into_values()),
                         ),
                         LoadTarget::Report => {
-                            let instant = chrono::Local::now() - RankingAllMonthly::min_interval();
+                            let yesterday = chrono::Local::now().date_naive().pred_opt().unwrap();
                             Self::to_debug(
-                                APILoader::new(Report(instant.date_naive().pred_opt().unwrap()))
-                                    .get()
-                                    .await
-                                    .map(|v| [v]),
+                                APILoader::new(Report(yesterday)).get().await.map(|v| [v]),
                             )
                         }
                         LoadTarget::Ranking(r) => {
-                            let instant = chrono::Local::now() - RankingAllMonthly::min_interval();
-
+                            let yesterday = chrono::Local::now().date_naive().pred_opt().unwrap();
                             match r {
                                 Ranking::All => Self::to_debug(
-                                    APILoader::new(RankingAllMonthly {
-                                        ym: instant.date_naive(),
-                                    })
-                                    .get()
-                                    .await
-                                    .map(|v| v.0),
+                                    APILoader::new(RankingAllMonthly { ym: yesterday })
+                                        .get()
+                                        .await
+                                        .map(|v| v.0),
                                 ),
                                 Ranking::Section => Self::to_debug(
                                     APILoader::new(RankingSectionMonthly {
-                                        ym: instant.date_naive(),
+                                        ym: yesterday,
                                         section: "exp_62".to_string(),
                                     })
                                     .get()
@@ -141,7 +135,7 @@ impl ItemsLabel {
                                 ),
                                 Ranking::Daily => Self::to_debug(
                                     APILoader::new(RankingSectionDaily {
-                                        date: instant.date_naive(),
+                                        date: yesterday,
                                         section: "exp_62".to_string(),
                                     })
                                     .get()
