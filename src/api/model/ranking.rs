@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use chrono::NaiveDate;
 use serde::Deserialize;
 
-use super::{area, shop};
+use super::{Position, area, shop};
 
 pub static EPOCH: NaiveDate = NaiveDate::from_ymd_opt(2017, 5, 7).unwrap();
 
@@ -37,8 +37,8 @@ pub struct Info {
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct DailyInfo {
-    pub pos_x: u32,
-    pub pos_y: u32,
+    #[serde(flatten)]
+    pub pos: Position,
 
     pub point: u32,
     #[serde(default)]

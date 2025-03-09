@@ -4,7 +4,7 @@ use std::{collections::HashMap, num::NonZeroU8};
 
 use serde::{Deserialize, Serialize};
 
-use super::item;
+use super::{Position, item};
 
 pub type Response = HashMap<Id, Area>;
 
@@ -20,18 +20,22 @@ pub struct Area {
     /// アピール商品ID
     #[serde(deserialize_with = "item::deserialize_optional_id")]
     pub icon: Option<item::Id>,
-    /// マップX位置
-    pub pos_x: u32,
-    /// マップY位置
-    pub pos_y: u32,
-    /// マップ縦マス数
-    pub height: u32,
-    /// マップ横マス数
-    pub width: u32,
+    #[serde(flatten)]
+    pub pos: Position,
+    #[serde(flatten)]
+    pub size: Size,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Id(pub NonZeroU8);
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Size {
+    /// マップ縦マス数
+    pub height: i32,
+    /// マップ横マス数
+    pub width: i32,
+}
 
 pub mod serde_id_opt {
     use std::num::NonZeroU8;
