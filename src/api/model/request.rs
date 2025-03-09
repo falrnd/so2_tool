@@ -4,9 +4,8 @@ use super::{area, item, shop};
 
 pub type Response = Vec<Request>;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-
 /// 注文品
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Request {
     /// 注文通し番号
     trans_serial: i64,
@@ -27,6 +26,8 @@ pub struct Request {
     /// 注文単価
     price: i32,
     /// 注文対象範囲
+    // doc: 0:全域対象注文 1～:範囲対象街のID
+    // impl: 0:None
     #[serde(with = "area::serde_id_opt")]
     request_area_id: Option<area::Id>,
 }

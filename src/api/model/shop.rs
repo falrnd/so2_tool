@@ -39,38 +39,50 @@ pub struct Shop {
     pub so1_foundation_days: Option<i32>,
     /// 商品図鑑登録数
     pub item_book: i32,
-    /// 称号業種IDと称号業種レベル (該当データが無い場合は[0,0])
+    /// 称号業種IDと称号業種レベル
+    // (該当データが無い場合は[0,0])
     pub high_class: TitleClass,
-    /// 称号職種IDと称号職種レベル (該当データが無い場合は[0,0])
+    /// 称号職種IDと称号職種レベル
+    // (該当データが無い場合は[0,0])
     pub high_job: TitleJob,
 }
 
+/// ショップ番号
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Id(pub u32);
 
+/// オーナー番号
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct UserId(pub u32);
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct ClassId(pub u32);
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub struct JobId(pub u32);
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
-pub struct Level(pub u32);
-
+/// 称号業種
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct TitleClass {
+    /// 称号業種ID
     pub id: ClassId,
+    /// 称号業種レベル
     pub level: Level,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct TitleJob {
+    /// 称号職種ID
     pub id: JobId,
+    /// 秱号職種レベル
     pub level: Level,
 }
+
+/// 業種ID
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct ClassId(pub u32);
+
+/// 職種ID
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+pub struct JobId(pub u32);
+
+/// 業種/職種レベル
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
+pub struct Level(pub u32);
 
 impl Display for Id {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {

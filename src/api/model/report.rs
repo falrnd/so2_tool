@@ -4,10 +4,11 @@ use serde::{Deserialize, Serialize};
 
 use super::{area, item};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
 // Why doesn't this work?
 // #[serde(flatten)]
 // pub general: Report,
+/// レポート
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Response {
     /// 住民の購入レポート
     pub system: ReportItem,
@@ -19,6 +20,7 @@ pub struct Response {
     pub area: HashMap<area::Id, Report>,
 }
 
+/// レポート
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Report {
     /// 住民の購入レポート

@@ -7,12 +7,16 @@ use super::area;
 #[derive(Debug, Deserialize)]
 pub struct Response(pub Vec<AreaSummary>);
 
+/// 街情報
 #[derive(Debug, Deserialize)]
 pub struct AreaSummary {
+    /// 街ID
     pub area_id: area::Id,
+    /// 活気ポイント
     pub point: Fun,
 }
 
+/// 活気ポイント
 #[derive(Debug, Deserialize)]
 pub struct Fun(pub i32);
 

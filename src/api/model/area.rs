@@ -18,6 +18,7 @@ pub struct Area {
     /// 街アピールコメント
     pub desc: Vec<String>,
     /// アピール商品ID
+    // "0"が渡って来うる(なぜ？)のでその場合はNone
     #[serde(deserialize_with = "item::deserialize_optional_id")]
     pub icon: Option<item::Id>,
     #[serde(flatten)]
@@ -26,9 +27,11 @@ pub struct Area {
     pub size: Size,
 }
 
+/// 街ID
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Id(pub NonZeroU8);
 
+/// 街のマップマス数
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Size {
     /// マップ縦マス数

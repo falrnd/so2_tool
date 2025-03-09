@@ -8,29 +8,40 @@ use super::{item, shop};
 #[derive(Debug, Deserialize)]
 pub struct Response(pub Vec<RequestReport>);
 
-#[derive(Debug, Deserialize)]
-pub struct Amount(pub u32);
-
-#[derive(Debug, Deserialize)]
-pub struct Price(pub u32);
-
+/// 注文レポート
 #[derive(Debug, Deserialize)]
 pub struct RequestReport {
     // 配列で渡ってくるので順番を変えないように
     // 名前は変えてもいい
+    /// 売却側ショップ番号
     pub seller_shop_id: shop::Id,
+    /// 売却側ショップ名
     pub seller_shop_name: String,
+    /// 注文側ショップ番号
     pub buyer_shop_id: shop::Id,
+    /// 注文側ショップ名
     pub buyer_shop_name: String,
+    /// 商品ID
     pub item_id: item::Id,
+    /// 商品数量
     pub item_count: Amount,
+    /// 注文単価
     pub order_price: Price,
-    pub timestamp: i64,
+    /// 取引時刻 (UNIX時間)
+    pub unix_time: i64,
 }
+
+/// 商品数量
+#[derive(Debug, Deserialize)]
+pub struct Amount(pub u32);
+
+/// 注文単価
+#[derive(Debug, Deserialize)]
+pub struct Price(pub u32);
 
 impl RequestReport {
     pub fn traded_at(&self) -> NaiveDateTime {
-        DateTime::from_timestamp(self.timestamp, 0)
+        DateTime::from_timestamp(self.unix_time, 0)
             .unwrap()
             .naive_local()
     }

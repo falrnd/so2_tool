@@ -40,46 +40,46 @@ macro_rules! impl_schema {
     };
 }
 
-///商品定義
+/// 商品定義
 pub struct OfficialItem;
-///レシピ商品定義
+/// レシピ商品定義
 pub struct RecipeItem;
-///街定義
+/// 街定義
 pub struct Area;
-//.レポート
+/// レポート
 pub struct Report(pub NaiveDate);
-///ランキング/月間全部門トップ3
+/// ランキング/月間全部門トップ3
 pub struct RankingAllMonthly {
     pub ym: NaiveDate,
 }
-///ランキング/月間部門別トップ1000
+/// ランキング/月間部門別トップ1000
 pub struct RankingSectionMonthly {
     pub ym: NaiveDate,
     pub section: String,
 }
-///ランキング/デイリートップ1000
+/// ランキング/デイリートップ1000
 pub struct RankingSectionDaily {
     pub date: NaiveDate,
     pub section: String,
 }
-///販売品
+/// 販売品
 pub struct Sale;
-///注文品
+/// 注文品
 pub struct Request;
-///お店件数
+/// お店件数
 pub struct ShopSummary;
-///全お店リスト
+/// 全お店リスト
 pub struct Shop;
 //.住民
 pub struct People;
-///注文レポート
+/// 注文レポート
 pub enum RequestReport {
-    ///全注文
+    /// 全注文
     All { date: NaiveDate, hour: u8 },
-    ///ショップ別注文
+    /// ショップ別注文
     Shop { date: NaiveDate, shop_id: shop::Id },
 }
-///街情報
+/// 街情報
 pub struct AreaSummary;
 
 static ORIGIN: LazyLock<Url> = LazyLock::new(|| Url::parse("https://so2-api.mutoys.com").unwrap());

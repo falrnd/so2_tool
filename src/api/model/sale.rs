@@ -7,7 +7,7 @@ pub type Response = Vec<Sale>;
 
 #[serde_as]
 #[derive(Debug, Clone, Serialize, Deserialize)]
-///販売品
+/// 販売品
 pub struct Sale {
     /// 販売通し番号
     pub sale_serial: i64,

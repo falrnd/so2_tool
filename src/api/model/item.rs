@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 pub struct Response {
     #[serde(flatten)]
     value: HashMap<String, Item>,
+    // value: HashMap<Id, Item>, // todo: error with Nonzero
 }
 
 #[derive(Debug, Deserialize)]
@@ -15,6 +16,7 @@ pub struct Official(pub Response);
 #[derive(Debug, Deserialize)]
 pub struct Recipe(pub Response);
 
+/// 商品定義 / レシピ商品定義
 /// ## Note
 /// ### 公式アイテムjsonの中に存在するレシピアイテム
 /// - 公式アイテム"ミックスジュース"の素材?
@@ -29,12 +31,19 @@ pub struct Recipe(pub Response);
 ///   - [Item::sort] : 元のアイテムと異なる
 #[derive(Debug, Clone, Deserialize)]
 pub struct Item {
+    /// カテゴリー名
     pub category: Category,
+    /// 業種/職種名 (複数の場合は '/' で連結された文字列)
     pub class: Class,
+    /// 商品ID
     pub item_id: Id,
+    /// セット上限数
     pub limit: StackSize,
+    /// 商品名
     pub name: String,
+    /// 数量単位
     pub scale: Scale,
+    /// 並び順
     pub sort: u32,
 }
 
@@ -99,7 +108,7 @@ impl Response {
         S: std::hash::BuildHasher + Default,
     {
         let o = official.0.values().filter(|v| v.is_official());
-        let r = recipe.0.values(); //.filter(|v| v.is_recipe());
+        let r = recipe.0.values(); // .filter(|v| v.is_recipe());
 
         o.chain(r)
             .map(|item| (item.item_id.clone(), item.clone()))
