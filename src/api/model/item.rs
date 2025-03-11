@@ -1,20 +1,27 @@
 use std::{collections::HashMap, num::NonZeroU32};
 
-use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Deserialize)]
-pub struct Response {
-    #[serde(flatten)]
-    value: HashMap<String, Item>,
-    // value: HashMap<Id, Item>, // todo: error with Nonzero
-}
+// todo: HashMap<Id, Item> key deserialize error
+pub type Response = HashMap<String, Item>;
 
 #[derive(Debug, Deserialize)]
 pub struct Official(pub Response);
 
 #[derive(Debug, Deserialize)]
 pub struct Recipe(pub Response);
+
+pub fn join_table<S>(official: &Official, recipe: &Recipe) -> HashMap<Id, Item, S>
+where
+    S: std::hash::BuildHasher + Default,
+{
+    let o = official.0.values().filter(|v| v.is_official());
+    let r = recipe.0.values(); // .filter(|v| v.is_recipe());
+
+    o.chain(r)
+        .map(|item| (item.item_id.clone(), item.clone()))
+        .collect()
+}
 
 /// 商品定義 / レシピ商品定義
 /// ## Note
@@ -91,28 +98,6 @@ impl std::fmt::Display for Item {
 impl std::hash::Hash for Item {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.item_id.hash(state);
-    }
-}
-
-impl Response {
-    pub fn values(&self) -> impl Iterator<Item = &Item> {
-        self.value.values().sorted_by_key(|item| item.sort)
-    }
-
-    pub fn into_values(self) -> impl Iterator<Item = Item> {
-        self.value.into_values().sorted_by_key(|item| item.sort)
-    }
-
-    pub fn join_table<S>(official: &Official, recipe: &Recipe) -> HashMap<Id, Item, S>
-    where
-        S: std::hash::BuildHasher + Default,
-    {
-        let o = official.0.values().filter(|v| v.is_official());
-        let r = recipe.0.values(); // .filter(|v| v.is_recipe());
-
-        o.chain(r)
-            .map(|item| (item.item_id.clone(), item.clone()))
-            .collect()
     }
 }
 

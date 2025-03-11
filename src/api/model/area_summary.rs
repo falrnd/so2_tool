@@ -4,8 +4,7 @@ use serde::Deserialize;
 
 use super::area;
 
-#[derive(Debug, Deserialize)]
-pub struct Response(pub Vec<AreaSummary>);
+pub type Response = Vec<AreaSummary>;
 
 /// 街情報
 #[derive(Debug, Deserialize)]

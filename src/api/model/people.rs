@@ -7,8 +7,7 @@ use serde_with::{DefaultOnNull, serde_as};
 use super::area;
 
 /// 全街人口リスト
-#[derive(Debug, Deserialize)]
-pub struct Response(pub Vec<People>);
+pub type Response = Vec<People>;
 
 /// 街の人口リスト
 #[serde_as]

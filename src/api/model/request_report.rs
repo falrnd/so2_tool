@@ -5,8 +5,7 @@ use serde::Deserialize;
 
 use super::{item, shop};
 
-#[derive(Debug, Deserialize)]
-pub struct Response(pub Vec<RequestReport>);
+pub type Response = Vec<RequestReport>;
 
 /// 注文レポート
 #[derive(Debug, Deserialize)]

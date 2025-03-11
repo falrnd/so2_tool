@@ -150,10 +150,7 @@ impl ItemsLabel {
                             Self::to_display(APILoader::new(ShopSummary).get().await.map(|v| [v]))
                         }
                         LoadTarget::Shop => Self::to_debug(APILoader::new(Shop).get().await),
-                        LoadTarget::People => {
-                            Self::to_display(APILoader::new(People).get().await.map(|v| v.0))
-                        }
-
+                        LoadTarget::People => Self::to_display(APILoader::new(People).get().await),
                         LoadTarget::RequestReport => {
                             let instant = chrono::Local::now() - RequestReport::min_interval();
                             let date = instant.date_naive();
@@ -161,12 +158,11 @@ impl ItemsLabel {
                             Self::to_display(
                                 APILoader::new(RequestReport::All { date, hour })
                                     .get()
-                                    .await
-                                    .map(|v| v.0),
+                                    .await,
                             )
                         }
                         LoadTarget::AreaSummary => {
-                            Self::to_display(APILoader::new(AreaSummary).get().await.map(|v| v.0))
+                            Self::to_display(APILoader::new(AreaSummary).get().await)
                         }
                     }
                 },
