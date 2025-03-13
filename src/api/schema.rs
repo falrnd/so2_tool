@@ -88,7 +88,7 @@ impl_schema! {
     OfficialItem => item::Official { ORIGIN.join("master/item.json").unwrap() }
     RecipeItem => item::Recipe { ORIGIN.join("json/master/recipe_item.json").unwrap() }
     Area => area::Response { ORIGIN.join("master/area.json").unwrap() }
-    Report => report::Response { |self|
+    Report => report::Report { |self|
         let yyyy = self.0.year();
         let mm = self.0.month();
         let dd = self.0.day();

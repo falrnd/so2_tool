@@ -2,42 +2,37 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::{area, item};
-
-// Why doesn't this work?
-// #[serde(flatten)]
-// pub general: Report,
-/// レポート
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct Response {
-    /// 住民の購入レポート
-    pub system: ReportItem,
-    /// 業者(店頭)の購入レポート
-    pub user: ReportItem,
-    /// 業者(注文)の購入レポート
-    pub request: ReportItem,
-    // 町別レポート
-    pub area: HashMap<area::Id, Report>,
-}
+use super::area;
 
 /// レポート
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Report {
+    // 全体レポート
+    #[serde(flatten)]
+    pub general: AreaReport,
+    // 町別レポート
+    pub area: HashMap<area::Id, AreaReport>,
+}
+
+/// レポート
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AreaReport {
     /// 住民の購入レポート
-    pub system: ReportItem,
+    pub system: Entries,
     /// 業者(店頭)の購入レポート
-    pub user: ReportItem,
+    pub user: Entries,
     /// 業者(注文)の購入レポート
-    pub request: ReportItem,
+    pub request: Entries,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ReportItem {
-    pub item: HashMap<item::Id, ReportEntry>,
+pub struct Entries {
+    // pub item: HashMap<item::Id, Entry>,
+    pub item: HashMap<String, Entry>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ReportEntry {
+pub struct Entry {
     /// 総取引件数
     pub count: u64,
     /// 総取引数量
